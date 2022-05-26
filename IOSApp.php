@@ -21,7 +21,7 @@
  $username= getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "username"; //Enter username here
  $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "accesskey"; //Enter accesskey here
 
- $driver = RemoteWebDriver::create("https://$username:$accesskey@beta-hub.lambdatest.com/wd/hub",$caps);
+ $driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
 
 try{
     $wait = new WebDriverWait($driver, 30);
