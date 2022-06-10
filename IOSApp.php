@@ -15,7 +15,12 @@
     "video"=>true,
     "visual"=>true,
     "name"=>"Php - iOS test",
-    "build" => "Php Vanilla - iOS"
+    "build" => "Php Vanilla - iOS",
+
+    // ADD THE APP URL OF OTHER APPS THAT YOU'D LIKE TO INSTALL ON THE SAME DEVICE
+
+    "otherApps" => ["lt:// ", "lt:// "]  #ENTER THE OTHER APP URLs HERE IN AN ARRAY FORMAT
+
  );
 
  $username= getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "username"; //Enter username here
@@ -37,36 +42,6 @@ try{
 
     $notification_element = $driver->findElement(WebDriverBy::id('notification'));
     $notification_element->click();
-    sleep(2);
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('geoLocation')));
-    $geolocation_element = $driver->findElement(WebDriverBy::id('geoLocation'));
-    $geolocation_element->click();
-    sleep(5);
-
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
-    $home_element = $driver->findElement(WebDriverBy::id('Back'));
-    $home_element->click();
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('speedTest')));
-    $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
-    $speedtest_element->click();
-    sleep(5);
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
-    $home_element = $driver->findElement(WebDriverBy::id('Back'));
-    $home_element->click();
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Browser')));
-    $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
-    $browser_element->click();
-
-    $url_element = $driver->findElement(WebDriverBy::id('url'));
-    $url_element->sendKeys("https://www.lambdatest.com");
-
-    $find_element = $driver->findElement(WebDriverBy::id('find'));
-    $find_element->click();
     sleep(2);
 
     $driver->quit();
