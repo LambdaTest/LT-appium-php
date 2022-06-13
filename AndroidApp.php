@@ -5,7 +5,11 @@
     use Facebook\WebDriver\WebDriverBy;
 
     $caps = array(
-        "app"=>"lt://", //Enter app_url here
+
+         //Enter the Custom_ID here that was used to upload your application
+
+        "app"=>"ENTER_CUSTOM_ID_HERE", //Enter app_url here
+
         "deviceName" => "Galaxy S20",
         "platformName" => "Android",
         "platformVersion" => "10",
@@ -14,11 +18,6 @@
         "video" => TRUE,
         "name" => "Php - Android test",
         "build" => "Php Vanilla - Android",
-
-         // ADD THE APP URL OF OTHER APPS THAT YOU'D LIKE TO INSTALL ON THE SAME DEVICE
-
-         "otherApps" => ["lt:// ", "lt:// "]  #ENTER THE OTHER APP URLs HERE IN AN ARRAY FORMAT
-
     );
 
     $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "username"; //Enter username here
