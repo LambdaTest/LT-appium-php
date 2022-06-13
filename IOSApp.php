@@ -16,9 +16,13 @@
     "visual"=>true,
     "name"=>"Php - iOS test",
     "build" => "Php Vanilla - iOS",
+  
 
-    //ADD GEOLOCATION BASED ON COUNTRY CODE
-    "geoLocation" => "fr" 
+    //ACCEPT ALERTS FOR IOS
+    "autoDismissAlerts" => TRUE,
+
+    //DISMISS ALERTS FOR IOS
+    "autoAcceptAlerts" => TRUE
 
  );
 
