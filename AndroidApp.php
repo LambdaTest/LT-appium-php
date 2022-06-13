@@ -15,8 +15,8 @@
         "name" => "Php - Android test",
         "build" => "Php Vanilla - Android",
 
-        //ADD GEOLOCATION BASED ON COUNTRY CODE
-        "geoLocation" => "fr" 
+        //GRANT PERMISSIONS FOR ANDROID
+        "autoGrantPermissions" => TRUE
 
     );
 
