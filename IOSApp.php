@@ -17,9 +17,8 @@
     "name"=>"Php - iOS test",
     "build" => "Php Vanilla - iOS",
 
-    // ADD THE APP URL OF OTHER APPS THAT YOU'D LIKE TO INSTALL ON THE SAME DEVICE
-
-    "otherApps" => ["lt:// ", "lt:// "]  #ENTER THE OTHER APP URLs HERE IN AN ARRAY FORMAT
+    //ADD GEOLOCATION BASED ON COUNTRY CODE
+    "geoLocation" => "fr" 
 
  );
 
