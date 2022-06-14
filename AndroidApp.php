@@ -1,11 +1,10 @@
 <?php
-    require __dir__.'/vendor/autoload.php';
+    require 'vendor/autoload.php';
     use Facebook\WebDriver\Remote\DesiredCapabilities;
-    use Facebook\WebDriver\Remote\RemoteWebDriver;
     use Facebook\WebDriver\WebDriverBy;
 
     $caps = array(
-        "app"=>"lt://", //Enter app_url here
+        "app"=> "APP_URL", //Enter app_url here
         "deviceName" => "Galaxy S20",
         "platformName" => "Android",
         "platformVersion" => "10",
@@ -16,8 +15,8 @@
         "build" => "Php Vanilla - Android"
     );
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "username"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "accesskey"; //Enter accesskey here
+    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
+    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
 
     $driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
 
