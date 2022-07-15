@@ -91,10 +91,20 @@ mv composer.phar /usr/local/bin/composer
 ```
 
 **For Windows**
-Install the composer dependencies in the current project directory using the command below:
+
+1. Copy the 'composer.phar' to the project directory using copy command:
+
+```php
+copy C:\ProgramData\ComposerSetup\bin\composer.phar
+```
+
+2. Install the composer dependencies in the current project directory using the commands below:
 
 ```php
 composer update
+php composer.phar require phpwhois/phpwhois
+php composer.phar install
+php composer.phar require php-webdriver/webdriver
 ```
 In case of any error, please try restarting the windows.
 
