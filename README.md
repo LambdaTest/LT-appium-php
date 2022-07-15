@@ -67,9 +67,9 @@ brew install php
 sudo apt-get install curl libcurl3 libcurl3-dev php
 ```
 
-For **Windows**, you can download **PHP** from [here](http://windows.php.net/download/). Also, refer to this [documentation](http://php.net/manual/en/install.windows.php) for ensuring the accessibility of PHP through Command Prompt(cmd).
+**Windows:** You can download **PHP** from [here](http://windows.php.net/download/). Also, refer to this [documentation](http://php.net/manual/en/install.windows.php) for ensuring the accessibility of PHP through Command Prompt(cmd).
 
-Please add php to window's path.
+Please add php to Windows System Variables PATH.
 
 </details>
 
