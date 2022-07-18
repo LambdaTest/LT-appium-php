@@ -2,13 +2,15 @@
  require __dir__.'/vendor/autoload.php';
  use Facebook\WebDriver\Remote\DesiredCapabilities;
  use Facebook\WebDriver\WebDriverBy;
+ use Facebook\WebDriver\WebDriverWait;
  use Facebook\WebDriver\WebDriverExpectedCondition;
+ use Facebook\WebDriver\Chrome\ChromeOptions;
  use Facebook\WebDriver\Remote\RemoteWebDriver;
 
  $caps = array(
     "app"=>"APP_URL", // Enter app_url here
-    "deviceName"=>"iPhone 11",
-    "platformVersion"=>"14",
+    "deviceName"=>"iPhone 13",
+    "platformVersion"=>"15",
     "platformName"=>"ios",
     "isRealMobile"=>true,
     "video"=>true,

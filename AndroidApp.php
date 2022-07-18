@@ -2,6 +2,9 @@
     require 'vendor/autoload.php';
     use Facebook\WebDriver\Remote\DesiredCapabilities;
     use Facebook\WebDriver\WebDriverBy;
+    use Facebook\WebDriver\Remote;
+    use Facebook\WebDriver\Chrome\ChromeOptions;
+    use Facebook\WebDriver\WebDriverExpectedCondition;
     use Facebook\WebDriver\Remote\RemoteWebDriver;
 
     $caps = array(
@@ -37,20 +40,7 @@
     $geoLocation_element = $driver->findElement(WebDriverBy::id('geoLocation'));
     $geoLocation_element->click();
     sleep(5);
-
-    $home_element = $driver->findElement(WebDriverBy::id('Home'));
-    $home_element->click();
-
-    $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
-    $speedtest_element->click();
-    sleep(5);
-
-    $home_element = $driver->findElement(WebDriverBy::id('Home'));
-    $home_element->click();
-
-    $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
-    $browser_element->click();
-
+    
     $url_element = $driver->findElement(WebDriverBy::id('url'));
     $url_element->sendkeys("https://www.lambdatest.com");
 
