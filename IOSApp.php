@@ -45,21 +45,16 @@ try{
     $geolocation_element->click();
     sleep(5);
 
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
     $home_element = $driver->findElement(WebDriverBy::id('Back'));
     $home_element->click();
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('speedTest')));
     $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
     $speedtest_element->click();
     sleep(5);
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
     $home_element = $driver->findElement(WebDriverBy::id('Back'));
     $home_element->click();
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Browser')));
     $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
     $browser_element->click();
 
