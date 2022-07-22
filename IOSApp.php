@@ -8,7 +8,7 @@
  use Facebook\WebDriver\Remote\RemoteWebDriver;
 
  $caps = array(
-   "app"=> "lt://APP10160531401657115470011987", //Enter app_url here
+   "app"=> "APP_URL", //Enter app_url here
    "deviceName" => "iPhone 11",
    "platformName" => "ios",
    "platformVersion" => "14",
@@ -16,7 +16,7 @@
    "visual" => TRUE,
    "video" => TRUE,
    "name" => "Php - iOS test",
-   "build" => "Php Vanilla - iOS V4"
+   "build" => "Php Vanilla - iOS"
 );
 
     $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
