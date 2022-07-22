@@ -78,21 +78,11 @@ Please add php to Windows System Variables PATH.
 <summary id="summary_2"> <strong>Download Composer in the project directory</strong>
 </summary>
 
-Download **composer** in the project directory from here ([Linux/MacOS](https://getcomposer.org/download/), [Windows](https://getcomposer.org/doc/00-intro.md#installation-windows)).
+1. Download **composer** in the project directory from here ([Linux/MacOS](https://getcomposer.org/download/), [Windows](https://getcomposer.org/doc/00-intro.md#installation-windows)).
 
 **Tip Note:**
 
-To use the **composer** command directly, it either should have been downloaded in the project directory or should be accessible globally which can be done by the command below:
-
-**For MacOS/Linux**
-
-```bash
-mv composer.phar /usr/local/bin/composer
-```
-
-**For Windows**
-
-1. Copy the 'composer.phar' to the project directory using copy command:
+To use the **composer** command directly, it should have been downloaded in the project directory. In windows the composer gets installed in different directory. So, copy the 'composer.phar' to the project directory using copy command:
 
 ```php
 copy C:\ProgramData\ComposerSetup\bin\composer.phar
@@ -106,7 +96,7 @@ php composer.phar require phpwhois/phpwhois
 php composer.phar install
 php composer.phar require php-webdriver/webdriver
 ```
-In case of any error, please try restarting the windows.
+In case of any error, please try restarting.
 
 </details>
 
@@ -187,16 +177,16 @@ You can update your custom capabilities in test scripts. In this sample project,
 
 ```csharp title="iOS(.ipa)"
   $caps = array(
-    "app"=>"APP_URL", // Enter app_url here
-    "deviceName"=>"iPhone 11",
-    "platformVersion"=>"14",
-    "platformName"=>"ios",
-    "isRealMobile"=>true,
-    "video"=>true,
-    "visual"=>true,
-    "name"=>"Php - iOS test",
-    "build" => "Php Vanilla - iOS"
- );
+      "app"=> "lt://APP10160531401657115470011987", //Enter app_url here
+      "deviceName" => "iPhone 11",
+      "platformName" => "ios",
+      "platformVersion" => "14",
+      "isRealMobile" => TRUE,
+      "visual" => TRUE,
+      "video" => TRUE,
+      "name" => "Php - iOS test",
+      "build" => "Php Vanilla - iOS V4"
+  );  
 ```
 
 </TabItem>
