@@ -13,36 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Remote;
-
 /**
  * All the browsers supported by selenium
  */
-class WebDriverBrowserType
-{
-    const FIREFOX = 'firefox';
-    const FIREFOX_2 = 'firefox2';
-    const FIREFOX_3 = 'firefox3';
-    const FIREFOX_PROXY = 'firefoxproxy';
-    const FIREFOX_CHROME = 'firefoxchrome';
-    const GOOGLECHROME = 'googlechrome';
-    const SAFARI = 'safari';
-    const OPERA = 'opera';
-    const IEXPLORE = 'iexplore';
-    const IEXPLORE_PROXY = 'iexploreproxy';
-    const SAFARI_PROXY = 'safariproxy';
-    const CHROME = 'chrome';
-    const KONQUEROR = 'konqueror';
-    const MOCK = 'mock';
-    const IE_HTA = 'iehta';
-    const ANDROID = 'android';
-    const HTMLUNIT = 'htmlunit';
-    const IE = 'internet explorer';
-    const IPHONE = 'iphone';
-    const IPAD = 'iPad';
-    const PHANTOMJS = 'phantomjs';
+class WebDriverBrowserType {
 
-    private function __construct()
-    {
-    }
+  const FIREFOX = "firefox";
+  const FIREFOX_2 = "firefox2";
+  const FIREFOX_3 = "firefox3";
+  const FIREFOX_PROXY = "firefoxproxy";
+  const FIREFOX_CHROME = "firefoxchrome";
+  const GOOGLECHROME = "googlechrome";
+  const SAFARI = "safari";
+  const OPERA = "opera";
+  const IEXPLORE= "iexplore";
+  const IEXPLORE_PROXY= "iexploreproxy";
+  const SAFARI_PROXY = "safariproxy";
+  const CHROME = "chrome";
+  const KONQUEROR = "konqueror";
+  const MOCK = "mock";
+  const IE_HTA="iehta";
+
+  const ANDROID = "android";
+  const HTMLUNIT = "htmlunit";
+  const IE = "internet explorer";
+  const IPHONE = "iphone";
+  const IPAD = "iPad";
+  const PHANTOMJS = "phantomjs";
 }

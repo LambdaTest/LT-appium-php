@@ -13,67 +13,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
-
-use Facebook\WebDriver\Exception\NoSuchElementException;
-use Facebook\WebDriver\Exception\TimeOutException;
-
 /**
  * A utility class, designed to help the user to wait until a condition turns
  * true.
  *
  * @see WebDriverExpectedCondition.
  */
-class WebDriverWait
-{
-    protected $driver;
-    protected $timeout;
-    protected $interval;
+class WebDriverWait {
 
-    public function __construct(WebDriver $driver, $timeout_in_second = null, $interval_in_millisecond = null)
-    {
-        $this->driver = $driver;
-        $this->timeout = isset($timeout_in_second) ? $timeout_in_second : 30;
-        $this->interval = $interval_in_millisecond ?: 250;
+  protected $driver;
+  protected $timeout;
+  protected $interval;
+
+  public function __construct(
+      WebDriver $driver,
+      $timeout_in_second = null,
+      $interval_in_millisecond = null) {
+    $this->driver = $driver;
+    $this->timeout = $timeout_in_second ?: 30;
+    $this->interval = $interval_in_millisecond ?: 250;
+  }
+
+  /**
+   * Calls the function provided with the driver as an argument until the return
+   * value is not falsey.
+   *
+   * @param (closure|WebDriverExpectedCondition)
+   * @param string $message
+   * @return mixed The return value of $func_or_ec
+   */
+  public function until($func_or_ec, $message = "") {
+    $end = microtime(true) + $this->timeout;
+    $last_exception = null;
+
+    while ($end > microtime(true)) {
+      try {
+        if ($func_or_ec instanceof WebDriverExpectedCondition) {
+          $ret_val = call_user_func($func_or_ec->getApply(), $this->driver);
+        } else {
+          $ret_val = call_user_func($func_or_ec, $this->driver);
+        }
+        if ($ret_val) {
+          return $ret_val;
+        }
+      } catch (NoSuchElementException $e) {
+        $last_exception = $e;
+      }
+      usleep($this->interval * 1000);
     }
 
-    /**
-     * Calls the function provided with the driver as an argument until the return
-     * value is not falsey.
-     *
-     * @param (closure|WebDriverExpectedCondition)
-     * @param string $message
-     *
-     * @throws NoSuchElementException
-     * @throws TimeOutException
-     * @throws \Exception
-     * @return mixed The return value of $func_or_ec
-     */
-    public function until($func_or_ec, $message = '')
-    {
-        $end = microtime(true) + $this->timeout;
-        $last_exception = null;
-
-        while ($end > microtime(true)) {
-            try {
-                if ($func_or_ec instanceof WebDriverExpectedCondition) {
-                    $ret_val = call_user_func($func_or_ec->getApply(), $this->driver);
-                } else {
-                    $ret_val = call_user_func($func_or_ec, $this->driver);
-                }
-                if ($ret_val) {
-                    return $ret_val;
-                }
-            } catch (NoSuchElementException $e) {
-                $last_exception = $e;
-            }
-            usleep($this->interval * 1000);
-        }
-
-        if ($last_exception) {
-            throw $last_exception;
-        }
-
-        throw new TimeOutException($message);
+    if ($last_exception) {
+      throw $last_exception;
     }
+    throw new TimeOutException($message);
+  }
 }

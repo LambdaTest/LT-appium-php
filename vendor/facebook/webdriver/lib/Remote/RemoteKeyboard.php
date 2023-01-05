@@ -13,72 +13,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Remote;
-
-use Facebook\WebDriver\WebDriverKeyboard;
-use Facebook\WebDriver\WebDriverKeys;
-
 /**
  * Execute keyboard commands for RemoteWebDriver.
  */
-class RemoteKeyboard implements WebDriverKeyboard
-{
-    /**
-     * @var RemoteExecuteMethod
-     */
-    private $executor;
+class RemoteKeyboard implements WebDriverKeyboard {
 
-    /**
-     * @param RemoteExecuteMethod $executor
-     */
-    public function __construct(RemoteExecuteMethod $executor)
-    {
-        $this->executor = $executor;
-    }
+  /**
+   * @var RemoteExecuteMethod
+   */
+  private $executor;
 
-    /**
-     * Send keys to active element
-     * @param string|array $keys
-     * @return $this
-     */
-    public function sendKeys($keys)
-    {
-        $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
-            'value' => WebDriverKeys::encode($keys),
-        ));
+  /**
+   * @param RemoteExecuteMethod $executor
+   */
+  public function __construct(RemoteExecuteMethod $executor) {
+    $this->executor = $executor;
+  }
 
-        return $this;
-    }
+  /**
+   * Send keys to active element
+   * @param string|array $keys
+   * @return $this
+   */
+  public function sendKeys($keys) {
+    $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
+      'value' => WebDriverKeys::encode($keys),
+    ));
+    return $this;
+  }
 
-    /**
-     * Press a modifier key
-     *
-     * @see WebDriverKeys
-     * @param string $key
-     * @return $this
-     */
-    public function pressKey($key)
-    {
-        $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
-            'value' => array((string) $key),
-        ));
+  /**
+   * Press a modifier key
+   *
+   * @see WebDriverKeys
+   * @param string $key
+   * @return $this
+   */
+  public function pressKey($key) {
+    $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
+      'value' => array((string)$key),
+    ));
+    return $this;
+  }
 
-        return $this;
-    }
-
-    /**
-     * Release a modifier key
-     *
-     * @see WebDriverKeys
-     * @param string $key
-     * @return $this
-     */
-    public function releaseKey($key)
-    {
-        $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
-            'value' => array((string) $key),
-        ));
-
-        return $this;
-    }
+  /**
+   * Release a modifier key
+   *
+   * @see WebDriverKeys
+   * @param string $key
+   * @return $this
+   */
+  public function releaseKey($key) {
+    $this->executor->execute(DriverCommand::SEND_KEYS_TO_ACTIVE_ELEMENT, array(
+      'value' => array((string)$key),
+    ));
+    return $this;
+  }
 }

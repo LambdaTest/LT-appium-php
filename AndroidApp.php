@@ -5,7 +5,7 @@
     use Facebook\WebDriver\WebDriverBy;
 
     $caps = array(
-        "app"=> "APP_URL", //Enter app_url here
+        "app"=> "lt://proverbial-android", //Enter app_url here
         "deviceName" => "Galaxy S20",
         "platformName" => "Android",
         "platformVersion" => "10",
@@ -19,7 +19,7 @@
     $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
     $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
 
-    $driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
+   @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
 
  try{
     $color_element = $driver->findElement(WebDriverBy::id('color'));
@@ -44,9 +44,6 @@
     $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
     $speedtest_element->click();
     sleep(5);
-
-    $home_element = $driver->findElement(WebDriverBy::id('Home'));
-    $home_element->click();
 
     $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
     $browser_element->click();

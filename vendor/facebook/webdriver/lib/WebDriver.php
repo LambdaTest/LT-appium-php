@@ -13,123 +13,122 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
-
 /**
  * The interface for WebDriver.
  */
-interface WebDriver extends WebDriverSearchContext
-{
-    /**
-     * Close the current window.
-     *
-     * @return WebDriver The current instance.
-     */
-    public function close();
+interface WebDriver extends WebDriverSearchContext {
 
-    /**
-     * Load a new web page in the current browser window.
-     *
-     * @param string $url
-     * @return WebDriver The current instance.
-     */
-    public function get($url);
+  /**
+   * Close the current window.
+   *
+   * @return WebDriver The current instance.
+   */
+  public function close();
 
-    /**
-     * Get a string representing the current URL that the browser is looking at.
-     *
-     * @return string The current URL.
-     */
-    public function getCurrentURL();
+  /**
+   * Load a new web page in the current browser window.
+   *
+   * @param string $url
+   * @return WebDriver The current instance.
+   */
+  public function get($url);
 
-    /**
-     * Get the source of the last loaded page.
-     *
-     * @return string The current page source.
-     */
-    public function getPageSource();
+  /**
+   * Get a string representing the current URL that the browser is looking at.
+   *
+   * @return string The current URL.
+   */
+  public function getCurrentURL();
 
-    /**
-     * Get the title of the current page.
-     *
-     * @return string The title of the current page.
-     */
-    public function getTitle();
+  /**
+   * Get the source of the last loaded page.
+   *
+   * @return string The current page source.
+   */
+  public function getPageSource();
 
-    /**
-     * Return an opaque handle to this window that uniquely identifies it within
-     * this driver instance.
-     *
-     * @return string The current window handle.
-     */
-    public function getWindowHandle();
+  /**
+   * Get the title of the current page.
+   *
+   * @return string The title of the current page.
+   */
+  public function getTitle();
 
-    /**
-     * Get all window handles available to the current session.
-     *
-     * @return array An array of string containing all available window handles.
-     */
-    public function getWindowHandles();
+  /**
+   * Return an opaque handle to this window that uniquely identifies it within
+   * this driver instance.
+   *
+   * @return string The current window handle.
+   */
+  public function getWindowHandle();
 
-    /**
-     * Quits this driver, closing every associated window.
-     */
-    public function quit();
+  /**
+   * Get all window handles available to the current session.
+   *
+   * @return array An array of string containing all available window handles.
+   */
+  public function getWindowHandles();
 
-    /**
-     * Take a screenshot of the current page.
-     *
-     * @param string $save_as The path of the screenshot to be saved.
-     * @return string The screenshot in PNG format.
-     */
-    public function takeScreenshot($save_as = null);
+  /**
+   * Quits this driver, closing every associated window.
+   *
+   * @return void
+   */
+  public function quit();
 
-    /**
-     * Construct a new WebDriverWait by the current WebDriver instance.
-     * Sample usage:
-     *
-     *   $driver->wait(20, 1000)->until(
-     *     WebDriverExpectedCondition::titleIs('WebDriver Page')
-     *   );
-     *
-     * @param int $timeout_in_second
-     * @param int $interval_in_millisecond
-     * @return WebDriverWait
-     */
-    public function wait(
-        $timeout_in_second = 30,
-        $interval_in_millisecond = 250
-    );
+  /**
+   * Take a screenshot of the current page.
+   *
+   * @param string $save_as The path of the screenshot to be saved.
+   * @return string The screenshot in PNG format.
+   */
+  public function takeScreenshot($save_as = null);
 
-    /**
-     * An abstraction for managing stuff you would do in a browser menu. For
-     * example, adding and deleting cookies.
-     *
-     * @return WebDriverOptions
-     */
-    public function manage();
+  /**
+   * Construct a new WebDriverWait by the current WebDriver instance.
+   * Sample usage:
+   *
+   *   $driver->wait(20, 1000)->until(
+   *     WebDriverExpectedCondition::titleIs('WebDriver Page')
+   *   );
+   *
+   * @param int $timeout_in_second
+   * @param int $interval_in_millisecond
+   * @return WebDriverWait
+   */
+  public function wait(
+      $timeout_in_second = 30,
+      $interval_in_millisecond = 250);
 
-    /**
-     * An abstraction allowing the driver to access the browser's history and to
-     * navigate to a given URL.
-     *
-     * @return WebDriverNavigation
-     * @see WebDriverNavigation
-     */
-    public function navigate();
+  /**
+   * An abstraction for managing stuff you would do in a browser menu. For
+   * example, adding and deleting cookies.
+   *
+   * @return WebDriverOptions
+   */
+  public function manage();
 
-    /**
-     * Switch to a different window or frame.
-     *
-     * @return WebDriverTargetLocator
-     * @see WebDriverTargetLocator
-     */
-    public function switchTo();
+  /**
+   * An abstraction allowing the driver to access the browser's history and to
+   * navigate to a given URL.
+   *
+   * @return WebDriverNavigation
+   * @see WebDriverNavigation
+   */
+  public function navigate();
 
-    /**
-     * @param string $name
-     * @param array $params
-     * @return mixed
-     */
-    public function execute($name, $params);
+  /**
+   * Switch to a different window or frame.
+   *
+   * @return WebDriverTargetLocator
+   * @see WebDriverTargetLocator
+   */
+  public function switchTo();
+
+  /**
+   * @param string $name
+   * @param array $params
+   * @return mixed
+   */
+  public function execute($name, $params);
 }

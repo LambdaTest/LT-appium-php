@@ -13,14 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Remote;
+interface ExecuteMethod {
 
-interface ExecuteMethod
-{
-    /**
-     * @param string $command_name
-     * @param array $parameters
-     * @return WebDriverResponse
-     */
-    public function execute($command_name, array $parameters = array());
+  /**
+   * @param string $command_name
+   * @param array $parameters
+   * @return WebDriverResponse
+   */
+  public function execute($command_name, array $parameters = array());
 }

@@ -13,33 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
+interface WebDriverKeyboard {
 
-interface WebDriverKeyboard
-{
-    /**
-     * Send a sequence of keys.
-     *
-     * @param string $keys
-     * @return $this
-     */
-    public function sendKeys($keys);
+  /**
+   * Send a sequence of keys.
+   *
+   * @param string $keys
+   * @return $this
+   */
+  public function sendKeys($keys);
 
-    /**
-     * Press a key
-     *
-     * @see WebDriverKeys
-     * @param string $key
-     * @return $this
-     */
-    public function pressKey($key);
+  /**
+   * Press a key
+   *
+   * @see WebDriverKeys
+   * @param string $key
+   * @return $this
+   */
+  public function pressKey($key);
 
-    /**
-     * Release a key
-     *
-     * @see WebDriverKeys
-     * @param string $key
-     * @return $this
-     */
-    public function releaseKey($key);
+  /**
+   * Release a key
+   *
+   * @see WebDriverKeys
+   * @param string $key
+   * @return $this
+   */
+  public function releaseKey($key);
 }

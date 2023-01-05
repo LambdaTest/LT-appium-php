@@ -13,15 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Internal;
+class WebDriverKeyDownAction
+    extends WebDriverSingleKeyAction
+    implements WebDriverAction {
 
-use Facebook\WebDriver\WebDriverAction;
-
-class WebDriverKeyDownAction extends WebDriverSingleKeyAction implements WebDriverAction
-{
-    public function perform()
-    {
-        $this->focusOnElement();
-        $this->keyboard->pressKey($this->key);
-    }
+  public function perform() {
+    $this->focusOnElement();
+    $this->keyboard->pressKey($this->key);
+  }
 }

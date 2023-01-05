@@ -13,23 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
-
 /**
  * The platforms supported by WebDriver.
  */
-class WebDriverPlatform
-{
-    const ANDROID = 'ANDROID';
-    const ANY = 'ANY';
-    const LINUX = 'LINUX';
-    const MAC = 'MAC';
-    const UNIX = 'UNIX';
-    const VISTA = 'VISTA';
-    const WINDOWS = 'WINDOWS';
-    const XP = 'XP';
+class WebDriverPlatform {
 
-    private function __construct()
-    {
-    }
+  const ANDROID = 'ANDROID';
+  const ANY = 'ANY';
+  const LINUX = 'LINUX';
+  const MAC = 'MAC';
+  const UNIX = 'UNIX';
+  const VISTA = 'VISTA';
+  const WINDOWS = 'WINDOWS';
+  const XP = 'XP';
 }

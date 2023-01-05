@@ -13,36 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Internal;
+class WebDriverSendKeysAction
+    extends WebDriverKeysRelatedAction
+    implements WebDriverAction {
 
-use Facebook\WebDriver\Internal\WebDriverLocatable;
-use Facebook\WebDriver\WebDriverAction;
-use Facebook\WebDriver\WebDriverKeyboard;
-use Facebook\WebDriver\WebDriverMouse;
+  private $keys;
 
-class WebDriverSendKeysAction extends WebDriverKeysRelatedAction implements WebDriverAction
-{
-    private $keys;
+  /**
+   * @param WebDriverKeyboard $keyboard
+   * @param WebDriverMouse $mouse
+   * @param WebDriverLocatable $location_provider
+   * @param string $keys
+   */
+  public function __construct(
+      WebDriverKeyboard $keyboard,
+      WebDriverMouse $mouse,
+      WebDriverLocatable $location_provider = null,
+      $keys = null) {
+    parent::__construct($keyboard, $mouse, $location_provider);
+    $this->keys = $keys;
+  }
 
-    /**
-     * @param WebDriverKeyboard $keyboard
-     * @param WebDriverMouse $mouse
-     * @param WebDriverLocatable $location_provider
-     * @param string $keys
-     */
-    public function __construct(
-        WebDriverKeyboard $keyboard,
-        WebDriverMouse $mouse,
-        WebDriverLocatable $location_provider = null,
-        $keys = null
-    ) {
-        parent::__construct($keyboard, $mouse, $location_provider);
-        $this->keys = $keys;
-    }
-
-    public function perform()
-    {
-        $this->focusOnElement();
-        $this->keyboard->sendKeys($this->keys);
-    }
+  public function perform() {
+    $this->focusOnElement();
+    $this->keyboard->sendKeys($this->keys);
+  }
 }

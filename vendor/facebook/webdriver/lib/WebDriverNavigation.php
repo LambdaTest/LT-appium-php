@@ -13,11 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
-
-use Facebook\WebDriver\Remote\DriverCommand;
-use Facebook\WebDriver\Remote\ExecuteMethod;
-
 /**
  * An abstraction allowing the driver to access the browser's history and to
  * navigate to a given URL.
@@ -27,62 +22,53 @@ use Facebook\WebDriver\Remote\ExecuteMethod;
  * FirefoxProfile preferences.
  * https://code.google.com/p/selenium/wiki/DesiredCapabilities#settings
  */
-class WebDriverNavigation
-{
-    protected $executor;
+class WebDriverNavigation {
 
-    public function __construct(ExecuteMethod $executor)
-    {
-        $this->executor = $executor;
-    }
+  protected $executor;
 
-    /**
-     * Move back a single entry in the browser's history, if possible.
-     *
-     * @return WebDriverNavigation The instance.
-     */
-    public function back()
-    {
-        $this->executor->execute(DriverCommand::GO_BACK);
+  public function __construct(ExecuteMethod $executor) {
+    $this->executor = $executor;
+  }
 
-        return $this;
-    }
+  /**
+   * Move back a single entry in the browser's history, if possible.
+   *
+   * @return WebDriverNavigation The instance.
+   */
+  public function back() {
+    $this->executor->execute(DriverCommand::GO_BACK);
+    return $this;
+  }
 
-    /**
-     * Move forward a single entry in the browser's history, if possible.
-     *
-     * @return WebDriverNavigation The instance.
-     */
-    public function forward()
-    {
-        $this->executor->execute(DriverCommand::GO_FORWARD);
+  /**
+   * Move forward a single entry in the browser's history, if possible.
+   *
+   * @return WebDriverNavigation The instance.
+   */
+  public function forward() {
+    $this->executor->execute(DriverCommand::GO_FORWARD);
+    return $this;
+  }
 
-        return $this;
-    }
+  /**
+   * Refresh the current page.
+   *
+   * @return WebDriverNavigation The instance.
+   */
+  public function refresh() {
+    $this->executor->execute(DriverCommand::REFRESH);
+    return $this;
+  }
 
-    /**
-     * Refresh the current page.
-     *
-     * @return WebDriverNavigation The instance.
-     */
-    public function refresh()
-    {
-        $this->executor->execute(DriverCommand::REFRESH);
-
-        return $this;
-    }
-
-    /**
-     * Navigate to the given URL.
-     *
-     * @param string $url
-     * @return WebDriverNavigation The instance.
-     */
-    public function to($url)
-    {
-        $params = array('url' => (string) $url);
-        $this->executor->execute(DriverCommand::GET, $params);
-
-        return $this;
-    }
+  /**
+   * Navigate to the given URL.
+   *
+   * @param string $url
+   * @return WebDriverNavigation The instance.
+   */
+  public function to($url) {
+    $params = array('url' => (string)$url);
+    $this->executor->execute(DriverCommand::GET, $params);
+    return $this;
+  }
 }

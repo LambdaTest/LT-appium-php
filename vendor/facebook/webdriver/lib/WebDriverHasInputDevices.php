@@ -13,20 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
-
 /**
  * Interface implemented by each driver that allows access to the input devices.
  */
-interface WebDriverHasInputDevices
-{
-    /**
-     * @return WebDriverKeyBoard
-     */
-    public function getKeyboard();
+interface WebDriverHasInputDevices {
 
-    /**
-     * @return WebDriverMouse
-     */
-    public function getMouse();
+  /**
+   * @return WebDriverKeyBoard
+   */
+  public function getKeyboard();
+
+  /**
+   * @return WebDriverMouse
+   */
+  public function getMouse();
 }

@@ -13,79 +13,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
+class WebDriverDispatcher {
 
-use Facebook\WebDriver\Support\Events\EventFiringWebDriver;
+  /**
+   * @var array
+   */
+  protected $listeners = array();
 
-class WebDriverDispatcher
-{
-    /**
-     * @var array
-     */
-    protected $listeners = array();
-    /**
-     * @var EventFiringWebDriver
-     */
-    protected $driver = null;
+  /**
+   * @var EventFiringWebDriver
+   */
+  protected $driver = null;
 
-    /**
-     * this is needed so that EventFiringWebElement can pass the driver to the
-     * exception handling
-     *
-     * @param EventFiringWebDriver $driver
-     * @return $this
-     */
-    public function setDefaultDriver(EventFiringWebDriver $driver)
-    {
-        $this->driver = $driver;
+  /**
+   * this is needed so that EventFiringWebElement can pass the driver to the
+   * exception handling
+   *
+   * @param EventFiringWebDriver $driver
+   * @return $this
+   */
+  public function setDefaultDriver(EventFiringWebDriver $driver) {
+    $this->driver = $driver;
+    return $this;
+  }
 
-        return $this;
+  /**
+   * @return null|EventFiringWebDriver
+   */
+  public function getDefaultDriver() {
+    return $this->driver;
+  }
+
+  /**
+   * @param WebDriverEventListener $listener
+   * @return $this
+   */
+  public function register(WebDriverEventListener $listener) {
+    $this->listeners[] = $listener;
+    return $this;
+  }
+
+  /**
+   * @param WebDriverEventListener $listener
+   * @return $this
+   */
+  public function unregister(WebDriverEventListener $listener) {
+    $key = array_search($listener, $this->listeners, true);
+    if ($key !== false) {
+      unset($this->listeners[$key]);
     }
+    return $this;
+  }
 
-    /**
-     * @return null|EventFiringWebDriver
-     */
-    public function getDefaultDriver()
-    {
-        return $this->driver;
+  /**
+   * @param mixed $method
+   * @param mixed $arguments
+   * @return $this
+   */
+  public function dispatch($method, $arguments) {
+    foreach ($this->listeners as $listener) {
+      call_user_func_array(array($listener, $method), $arguments);
     }
+    return $this;
+  }
 
-    /**
-     * @param WebDriverEventListener $listener
-     * @return $this
-     */
-    public function register(WebDriverEventListener $listener)
-    {
-        $this->listeners[] = $listener;
-
-        return $this;
-    }
-
-    /**
-     * @param WebDriverEventListener $listener
-     * @return $this
-     */
-    public function unregister(WebDriverEventListener $listener)
-    {
-        $key = array_search($listener, $this->listeners, true);
-        if ($key !== false) {
-            unset($this->listeners[$key]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param mixed $method
-     * @param mixed $arguments
-     * @return $this
-     */
-    public function dispatch($method, $arguments)
-    {
-        foreach ($this->listeners as $listener) {
-            call_user_func_array(array($listener, $method), $arguments);
-        }
-
-        return $this;
-    }
 }

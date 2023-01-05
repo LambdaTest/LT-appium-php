@@ -1,18 +1,21 @@
 <?php
- require __dir__.'/vendor/autoload.php';
+//  require_once('vendor/autoload.php');
+namespace Facebook\WebDriver;
+// require_once('facebook/webdriver/lib/__init__.php');
+require __dir__.'/vendor/autoload.php';
  use Facebook\WebDriver\Remote\DesiredCapabilities;
  use Facebook\WebDriver\Remote\RemoteWebDriver;
  use Facebook\WebDriver\WebDriverBy;
  use Facebook\WebDriver\WebDriverExpectedCondition;
 
  $caps = array(
-    "app"=>"APP_URL", // Enter app_url here
+    "app"=>"lt://proverbial-ios", // Enter app_url here
     "deviceName"=>"iPhone 11",
-    "platformVersion"=>"14",
     "platformName"=>"ios",
     "isRealMobile"=>true,
     "video"=>true,
     "visual"=>true,
+    "queueTimeout"=>"300",
     "name"=>"Php - iOS test",
     "build" => "Php Vanilla - iOS"
  );
@@ -20,10 +23,10 @@
     $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
     $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
 
- $driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
+ @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps,3600000,3600000);
 
 try{
-    $wait = new WebDriverWait($driver, 30);
+    $wait = new WebDriverWait($driver, 120);
     $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('color')));
     $color_element = $driver->findElement(WebDriverBy::id('color'));
     $color_element->click();

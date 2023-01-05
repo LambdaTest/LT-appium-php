@@ -13,62 +13,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Internal;
-
-use Closure;
-use Facebook\WebDriver\Exception\UnsupportedOperationException;
-use Facebook\WebDriver\WebDriverPoint;
-
 /**
  * Interface representing basic mouse operations.
  */
-class WebDriverCoordinates
-{
-    private $onScreen;
-    private $inViewPort;
-    private $onPage;
-    private $auxiliary;
+class WebDriverCoordinates {
 
-    public function __construct($on_screen, Closure $in_view_port, Closure $on_page, $auxiliary)
-    {
-        $this->onScreen = $on_screen;
-        $this->inViewPort = $in_view_port;
-        $this->onPage = $on_page;
-        $this->auxiliary = $auxiliary;
-    }
+  private
+    $onScreen,
+    $inViewPort,
+    $onPage,
+    $auxiliary;
 
-    /**
-     * @throws UnsupportedOperationException
-     * @return WebDriverPoint
-     */
-    public function onScreen()
-    {
-        throw new UnsupportedOperationException(
-            'onScreen is planned but not yet supported by Selenium'
-        );
-    }
+  public function __construct(
+      $on_screen,
+      Closure $in_view_port,
+      Closure $on_page,
+      $auxiliary) {
 
-    /**
-     * @return WebDriverPoint
-     */
-    public function inViewPort()
-    {
-        return call_user_func($this->inViewPort);
-    }
+    $this->onScreen = $on_screen;
+    $this->inViewPort = $in_view_port;
+    $this->onPage = $on_page;
+    $this->auxiliary = $auxiliary;
+  }
 
-    /**
-     * @return WebDriverPoint
-     */
-    public function onPage()
-    {
-        return call_user_func($this->onPage);
-    }
+  /**
+   * @return WebDriverPoint
+   */
+  public function onScreen() {
+    throw new UnsupportedOperationException(
+      'onScreen is planned but not yet supported by Selenium'
+    );
+  }
 
-    /**
-     * @return object The attached object.
-     */
-    public function getAuxiliary()
-    {
-        return $this->auxiliary;
-    }
+  /**
+   * @return WebDriverPoint
+   */
+  public function inViewPort() {
+    return call_user_func($this->inViewPort);
+  }
+
+  /**
+   * @return WebDriverPoint
+   */
+  public function onPage() {
+    return call_user_func($this->onPage);
+  }
+
+  /**
+   * @return Object The attached object.
+   */
+  public function getAuxiliary() {
+    return $this->auxiliary;
+  }
 }

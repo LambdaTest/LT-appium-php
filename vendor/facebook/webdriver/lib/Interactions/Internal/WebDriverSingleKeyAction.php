@@ -13,24 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Internal;
+abstract class WebDriverSingleKeyAction
+    extends WebDriverKeysRelatedAction
+    implements WebDriverAction {
 
-use Facebook\WebDriver\Internal\WebDriverLocatable;
-use Facebook\WebDriver\WebDriverAction;
-use Facebook\WebDriver\WebDriverKeyboard;
-use Facebook\WebDriver\WebDriverMouse;
+  protected $key;
 
-abstract class WebDriverSingleKeyAction extends WebDriverKeysRelatedAction implements WebDriverAction
-{
-    protected $key;
-
-    public function __construct(
-        WebDriverKeyboard $keyboard,
-        WebDriverMouse $mouse,
-        WebDriverLocatable $location_provider = null,
-        $key = null
-    ) {
-        parent::__construct($keyboard, $mouse, $location_provider);
-        $this->key = $key;
-    }
+  public function __construct(
+      WebDriverKeyboard $keyboard,
+      WebDriverMouse $mouse,
+      WebDriverLocatable $location_provider = null,
+      $key = null) {
+    parent::__construct($keyboard, $mouse, $location_provider);
+    $this->key = $key;
+  }
 }

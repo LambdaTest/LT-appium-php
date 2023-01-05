@@ -13,44 +13,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Touch;
+class WebDriverFlickFromElementAction
+  extends WebDriverTouchAction
+  implements WebDriverAction {
 
-use Facebook\WebDriver\WebDriverAction;
-use Facebook\WebDriver\WebDriverElement;
+  private $x;
+  private $y;
+  private $speed;
 
-class WebDriverFlickFromElementAction extends WebDriverTouchAction implements WebDriverAction
-{
-    private $x;
-    private $y;
-    private $speed;
+  /**
+   * @param WebDriverTouchScreen $touch_screen
+   * @param WebDriverElement $element
+   * @param int $x
+   * @param int $y
+   * @param int $speed
+   */
+  public function __construct(
+    WebDriverTouchScreen $touch_screen,
+    WebDriverElement $element, $x, $y, $speed
+  ) {
+    $this->x = $x;
+    $this->y = $y;
+    $this->speed = $speed;
+    parent::__construct($touch_screen, $element);
+  }
 
-    /**
-     * @param WebDriverTouchScreen $touch_screen
-     * @param WebDriverElement $element
-     * @param int $x
-     * @param int $y
-     * @param int $speed
-     */
-    public function __construct(
-        WebDriverTouchScreen $touch_screen,
-        WebDriverElement $element,
-        $x,
-        $y,
-        $speed
-    ) {
-        $this->x = $x;
-        $this->y = $y;
-        $this->speed = $speed;
-        parent::__construct($touch_screen, $element);
-    }
-
-    public function perform()
-    {
-        $this->touchScreen->flickFromElement(
-            $this->locationProvider,
-            $this->x,
-            $this->y,
-            $this->speed
-        );
-    }
+  public function perform() {
+    $this->touchScreen->flickFromElement(
+      $this->locationProvider,
+      $this->x,
+      $this->y,
+      $this->speed
+    );
+  }
 }

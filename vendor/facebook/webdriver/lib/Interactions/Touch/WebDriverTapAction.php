@@ -13,14 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Interactions\Touch;
+class WebDriverTapAction
+  extends WebDriverTouchAction
+  implements WebDriverAction {
 
-use Facebook\WebDriver\WebDriverAction;
-
-class WebDriverTapAction extends WebDriverTouchAction implements WebDriverAction
-{
-    public function perform()
-    {
-        $this->touchScreen->tap($this->locationProvider);
-    }
+  public function perform() {
+    $this->touchScreen->tap($this->locationProvider);
+  }
 }

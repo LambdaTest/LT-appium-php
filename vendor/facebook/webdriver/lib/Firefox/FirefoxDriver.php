@@ -13,13 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Firefox;
+class FirefoxDriver {
 
-class FirefoxDriver
-{
-    const PROFILE = 'firefox_profile';
-
-    private function __construct()
-    {
-    }
+  const PROFILE = 'firefox_profile';
 }
