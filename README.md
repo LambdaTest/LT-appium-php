@@ -61,13 +61,15 @@ Download and install the latest version of PHP in your system.
 brew install php
 ```
 
-**Windows:**
+**Linux:**
 
 ```bash
 sudo apt-get install curl libcurl3 libcurl3-dev php
 ```
 
-**Tip:** For **Windows**, you can download **PHP** from [here](http://windows.php.net/download/). Also, refer to this [documentation](http://php.net/manual/en/install.windows.php) for ensuring the accessibility of PHP through Command Prompt(cmd).
+**Windows:** You can download **PHP** from [here](http://windows.php.net/download/). Also, refer to this [documentation](http://php.net/manual/en/install.windows.php) for ensuring the accessibility of PHP through Command Prompt(cmd).
+
+Please add php to Windows System Variables PATH.
 
 </details>
 
@@ -76,21 +78,25 @@ sudo apt-get install curl libcurl3 libcurl3-dev php
 <summary id="summary_2"> <strong>Download Composer in the project directory</strong>
 </summary>
 
-Download **composer** in the project directory from here ([Linux/MacOS](https://getcomposer.org/download/), [Windows](https://getcomposer.org/doc/00-intro.md#installation-windows)).
+1. Download **composer** in the project directory from here ([Linux/MacOS](https://getcomposer.org/download/), [Windows](https://getcomposer.org/doc/00-intro.md#installation-windows)).
 
 **Tip Note:**
 
-To use the **composer** command directly, it either should have been downloaded in the project directory or should be accessible globally which can be done by the command below:
+To use the **composer** command directly, it should have been downloaded in the project directory. In windows the composer gets installed in different directory. So, copy the 'composer.phar' to the project directory using copy command:
 
-```bash
-mv composer.phar /usr/local/bin/composer
+```php
+copy C:\ProgramData\ComposerSetup\bin\composer.phar
 ```
 
-Install the composer dependencies in the current project directory using the command below:
+2. Install the composer dependencies in the current project directory using the commands below:
 
 ```php
 composer update
+php composer.phar require phpwhois/phpwhois
+php composer.phar install
+php composer.phar require php-webdriver/webdriver
 ```
+In case of any error, please try restarting.
 
 </details>
 
@@ -103,15 +109,15 @@ Set LambdaTest `Username` and `Access Key` in environment variables.
 **For Linux/macOS:**
 
 ```js
-export LT_USERNAME="YOUR_LAMBDATEST_USERNAME" \
-export LT_ACCESS_KEY="YOUR_LAMBDATEST_ACCESS_KEY"
+export LT_USERNAME=YOUR_LAMBDATEST_USERNAME \
+export LT_ACCESS_KEY=YOUR_LAMBDATEST_ACCESS_KEY
 ```
 
 **For Windows:**
 
 ```js
-set LT_USERNAME="YOUR_LAMBDATEST_USERNAME" `
-set LT_ACCESS_KEY="YOUR_LAMBDATEST_ACCESS_KEY"
+set LT_USERNAME=YOUR_LAMBDATEST_USERNAME `
+set LT_ACCESS_KEY=YOUR_LAMBDATEST_ACCESS_KEY
 ```
 
 ### Upload Your Application
@@ -171,16 +177,16 @@ You can update your custom capabilities in test scripts. In this sample project,
 
 ```csharp title="iOS(.ipa)"
   $caps = array(
-    "app"=>"lt://", // Enter app_url here
-    "deviceName"=>"iPhone 11",
-    "platformVersion"=>"14",
-    "platformName"=>"ios",
-    "isRealMobile"=>true,
-    "video"=>true,
-    "visual"=>true,
-    "name"=>"Php - iOS test",
-    "build" => "Php Vanilla - iOS"
- );
+      "app"=> "APP_URL", //Enter app_url here
+      "deviceName" => "iPhone 11",
+      "platformName" => "ios",
+      "platformVersion" => "14",
+      "isRealMobile" => TRUE,
+      "visual" => TRUE,
+      "video" => TRUE,
+      "name" => "Php - iOS test",
+      "build" => "Php Vanilla - iOS"
+  );  
 ```
 
 </TabItem>
@@ -188,7 +194,7 @@ You can update your custom capabilities in test scripts. In this sample project,
 
 ```php title="Android(.apk)"
   $caps = array(
-        "app"=>"lt://", //Enter app_url here
+        "app"=>"APP_URL", //Enter app_url here
         "deviceName" => "Galaxy S20",
         "platformName" => "Android",
         "platformVersion" => "10",

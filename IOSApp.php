@@ -1,11 +1,11 @@
 <?php
-//  require_once('vendor/autoload.php');
+
 namespace Facebook\WebDriver;
-// require_once('facebook/webdriver/lib/__init__.php');
 require __dir__.'/vendor/autoload.php';
  use Facebook\WebDriver\Remote\DesiredCapabilities;
  use Facebook\WebDriver\Remote\RemoteWebDriver;
  use Facebook\WebDriver\WebDriverBy;
+ use Facebook\WebDriver\WebDriverWait;
  use Facebook\WebDriver\WebDriverExpectedCondition;
 
  $caps = array(
@@ -46,21 +46,16 @@ try{
     $geolocation_element->click();
     sleep(5);
 
-
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
     $home_element = $driver->findElement(WebDriverBy::id('Back'));
     $home_element->click();
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('speedTest')));
     $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
     $speedtest_element->click();
     sleep(5);
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Back')));
     $home_element = $driver->findElement(WebDriverBy::id('Back'));
     $home_element->click();
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('Browser')));
     $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
     $browser_element->click();
 
