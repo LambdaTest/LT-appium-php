@@ -17,8 +17,12 @@
         "build" => "Php Vanilla - IOS"
     );
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
+    $username = getenv("LT_USERNAME");
+    $accesskey = getenv("LT_ACCESS_KEY");
+
+    if (!$username || !$accesskey) {
+        throw new Exception("Please set LT_USERNAME and LT_ACCESS_KEY environment variables");
+    }
 
    @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
 
