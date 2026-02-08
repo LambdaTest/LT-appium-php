@@ -1,52 +1,46 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
 
 use Facebook\WebDriver\Exception\NoSuchElementException;
-use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\Exception\TimeoutException;
 
 /**
- * A utility class, designed to help the user to wait until a condition turns
- * true.
+ * A utility class, designed to help the user to wait until a condition turns true.
  *
  * @see WebDriverExpectedCondition.
  */
 class WebDriverWait
 {
+    /**
+     * @var WebDriver
+     */
     protected $driver;
+    /**
+     * @var int
+     */
     protected $timeout;
+    /**
+     * @var int
+     */
     protected $interval;
 
     public function __construct(WebDriver $driver, $timeout_in_second = null, $interval_in_millisecond = null)
     {
         $this->driver = $driver;
-        $this->timeout = isset($timeout_in_second) ? $timeout_in_second : 30;
+        $this->timeout = $timeout_in_second ?? 30;
         $this->interval = $interval_in_millisecond ?: 250;
     }
 
     /**
-     * Calls the function provided with the driver as an argument until the return
-     * value is not falsey.
+     * Calls the function provided with the driver as an argument until the return value is not falsey.
      *
-     * @param (closure|WebDriverExpectedCondition)
+     * @param callable|WebDriverExpectedCondition $func_or_ec
      * @param string $message
      *
-     * @throws NoSuchElementException
-     * @throws TimeOutException
      * @throws \Exception
+     * @throws NoSuchElementException
+     * @throws TimeoutException
      * @return mixed The return value of $func_or_ec
      */
     public function until($func_or_ec, $message = '')
@@ -74,6 +68,6 @@ class WebDriverWait
             throw $last_exception;
         }
 
-        throw new TimeOutException($message);
+        throw new TimeoutException($message);
     }
 }

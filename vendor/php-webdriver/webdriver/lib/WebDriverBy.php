@@ -1,17 +1,4 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
 
@@ -24,7 +11,13 @@ namespace Facebook\WebDriver;
  */
 class WebDriverBy
 {
+    /**
+     * @var string
+     */
     private $mechanism;
+    /**
+     * @var string
+     */
     private $value;
 
     protected function __construct($mechanism, $value)
@@ -54,55 +47,55 @@ class WebDriverBy
      * names are not permitted.
      *
      * @param string $class_name
-     * @return WebDriverBy
+     * @return static
      */
     public static function className($class_name)
     {
-        return new self('class name', $class_name);
+        return new static('class name', $class_name);
     }
 
     /**
      * Locates elements matching a CSS selector.
      *
      * @param string $css_selector
-     * @return WebDriverBy
+     * @return static
      */
     public static function cssSelector($css_selector)
     {
-        return new self('css selector', $css_selector);
+        return new static('css selector', $css_selector);
     }
 
     /**
      * Locates elements whose ID attribute matches the search value.
      *
      * @param string $id
-     * @return WebDriverBy
+     * @return static
      */
     public static function id($id)
     {
-        return new self('id', $id);
+        return new static('id', $id);
     }
 
     /**
      * Locates elements whose NAME attribute matches the search value.
      *
      * @param string $name
-     * @return WebDriverBy
+     * @return static
      */
     public static function name($name)
     {
-        return new self('name', $name);
+        return new static('name', $name);
     }
 
     /**
      * Locates anchor elements whose visible text matches the search value.
      *
      * @param string $link_text
-     * @return WebDriverBy
+     * @return static
      */
     public static function linkText($link_text)
     {
-        return new self('link text', $link_text);
+        return new static('link text', $link_text);
     }
 
     /**
@@ -110,32 +103,32 @@ class WebDriverBy
      * value.
      *
      * @param string $partial_link_text
-     * @return WebDriverBy
+     * @return static
      */
     public static function partialLinkText($partial_link_text)
     {
-        return new self('partial link text', $partial_link_text);
+        return new static('partial link text', $partial_link_text);
     }
 
     /**
      * Locates elements whose tag name matches the search value.
      *
      * @param string $tag_name
-     * @return WebDriverBy
+     * @return static
      */
     public static function tagName($tag_name)
     {
-        return new self('tag name', $tag_name);
+        return new static('tag name', $tag_name);
     }
 
     /**
      * Locates elements matching an XPath expression.
      *
      * @param string $xpath
-     * @return WebDriverBy
+     * @return static
      */
     public static function xpath($xpath)
     {
-        return new self('xpath', $xpath);
+        return new static('xpath', $xpath);
     }
 }

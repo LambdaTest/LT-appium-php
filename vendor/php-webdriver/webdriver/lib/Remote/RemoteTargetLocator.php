@@ -1,21 +1,8 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Remote;
 
-use Facebook\WebDriver\WebDriver;
+use Facebook\WebDriver\Exception\Internal\LogicException;
 use Facebook\WebDriver\WebDriverAlert;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverTargetLocator;
@@ -25,87 +12,138 @@ use Facebook\WebDriver\WebDriverTargetLocator;
  */
 class RemoteTargetLocator implements WebDriverTargetLocator
 {
+    /** @var RemoteExecuteMethod */
     protected $executor;
+    /** @var RemoteWebDriver */
     protected $driver;
+    /** @var bool */
+    protected $isW3cCompliant;
 
-    public function __construct($executor, $driver)
+    public function __construct(RemoteExecuteMethod $executor, RemoteWebDriver $driver, $isW3cCompliant = false)
     {
         $this->executor = $executor;
         $this->driver = $driver;
+        $this->isW3cCompliant = $isW3cCompliant;
     }
 
     /**
-     * Switch to the main document if the page contains iframes. Otherwise, switch
-     * to the first frame on the page.
-     *
-     * @return WebDriver The driver focused on the top window or the first frame.
+     * @return RemoteWebDriver
      */
     public function defaultContent()
     {
-        $params = array('id' => null);
+        $params = ['id' => null];
         $this->executor->execute(DriverCommand::SWITCH_TO_FRAME, $params);
 
         return $this->driver;
     }
 
     /**
-     * Switch to the iframe by its id or name.
-     *
-     * @param WebDriverElement|string $frame The WebDriverElement,
-     * the id or the name of the frame.
-     * @return WebDriver The driver focused on the given frame.
+     * @param WebDriverElement|null|int|string $frame The WebDriverElement, the id or the name of the frame.
+     * When null, switch to the current top-level browsing context When int, switch to the WindowProxy identified
+     * by the value. When an Element, switch to that Element.
+     * @return RemoteWebDriver
      */
     public function frame($frame)
     {
-        if ($frame instanceof WebDriverElement) {
-            $id = array('ELEMENT' => $frame->getID());
+        if ($this->isW3cCompliant) {
+            if ($frame instanceof WebDriverElement) {
+                $id = [JsonWireCompat::WEB_DRIVER_ELEMENT_IDENTIFIER => $frame->getID()];
+            } elseif ($frame === null) {
+                $id = null;
+            } elseif (is_int($frame)) {
+                $id = $frame;
+            } else {
+                throw LogicException::forError(
+                    'In W3C compliance mode frame must be either instance of WebDriverElement, integer or null'
+                );
+            }
         } else {
-            $id = (string) $frame;
+            if ($frame instanceof WebDriverElement) {
+                $id = ['ELEMENT' => $frame->getID()];
+            } elseif ($frame === null) {
+                $id = null;
+            } elseif (is_int($frame)) {
+                $id = $frame;
+            } else {
+                $id = (string) $frame;
+            }
         }
 
-        $params = array('id' => $id);
+        $params = ['id' => $id];
         $this->executor->execute(DriverCommand::SWITCH_TO_FRAME, $params);
 
         return $this->driver;
     }
 
     /**
-     * Switch the focus to another window by its handle.
+     * Switch to the parent iframe.
      *
+     * @return RemoteWebDriver This driver focused on the parent frame
+     */
+    public function parent()
+    {
+        $this->executor->execute(DriverCommand::SWITCH_TO_PARENT_FRAME, []);
+
+        return $this->driver;
+    }
+
+    /**
      * @param string $handle The handle of the window to be focused on.
-     * @return WebDriver Tge driver focused on the given window.
-     * @see WebDriver::getWindowHandles
+     * @return RemoteWebDriver
      */
     public function window($handle)
     {
-        $params = array('name' => (string) $handle);
+        if ($this->isW3cCompliant) {
+            $params = ['handle' => (string) $handle];
+        } else {
+            $params = ['name' => (string) $handle];
+        }
+
         $this->executor->execute(DriverCommand::SWITCH_TO_WINDOW, $params);
 
         return $this->driver;
     }
 
     /**
-     * Switch to the currently active modal dialog for this particular driver
-     * instance.
+     * Creates a new browser window and switches the focus for future commands of this driver to the new window.
      *
-     * @return WebDriverAlert
+     * @see https://w3c.github.io/webdriver/#new-window
+     * @param string $windowType The type of a new browser window that should be created. One of [tab, window].
+     * The created window is not guaranteed to be of the requested type; if the driver does not support the requested
+     * type, a new browser window will be created of whatever type the driver does support.
+     * @throws LogicException
+     * @return RemoteWebDriver This driver focused on the given window
      */
+    public function newWindow($windowType = self::WINDOW_TYPE_TAB)
+    {
+        if ($windowType !== self::WINDOW_TYPE_TAB && $windowType !== self::WINDOW_TYPE_WINDOW) {
+            throw LogicException::forError('Window type must by either "tab" or "window"');
+        }
+
+        if (!$this->isW3cCompliant) {
+            throw LogicException::forError('New window is only supported in W3C mode');
+        }
+
+        $response = $this->executor->execute(DriverCommand::NEW_WINDOW, ['type' => $windowType]);
+
+        $this->window($response['handle']);
+
+        return $this->driver;
+    }
+
     public function alert()
     {
         return new WebDriverAlert($this->executor);
     }
 
     /**
-     * Switches to the element that currently has focus within the document
-     * currently "switched to", or the body element if this cannot be detected.
-     *
      * @return RemoteWebElement
      */
     public function activeElement()
     {
-        $response = $this->driver->execute(DriverCommand::GET_ACTIVE_ELEMENT);
+        $response = $this->driver->execute(DriverCommand::GET_ACTIVE_ELEMENT, []);
         $method = new RemoteExecuteMethod($this->driver);
 
-        return new RemoteWebElement($method, $response['ELEMENT']);
+        return new RemoteWebElement($method, JsonWireCompat::getElement($response), $this->isW3cCompliant);
     }
 }

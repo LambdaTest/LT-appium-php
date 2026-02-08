@@ -1,35 +1,44 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Remote;
 
-use Exception;
 use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Exception\UnsupportedOperationException;
 use Facebook\WebDriver\Firefox\FirefoxDriver;
-use Facebook\WebDriver\Firefox\FirefoxPreferences;
+use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\Firefox\FirefoxProfile;
 use Facebook\WebDriver\WebDriverCapabilities;
 use Facebook\WebDriver\WebDriverPlatform;
 
 class DesiredCapabilities implements WebDriverCapabilities
 {
+    /** @var array */
     private $capabilities;
 
-    public function __construct(array $capabilities = array())
+    /** @var array */
+    private static $ossToW3c = [
+        WebDriverCapabilityType::PLATFORM => 'platformName',
+        WebDriverCapabilityType::VERSION => 'browserVersion',
+        WebDriverCapabilityType::ACCEPT_SSL_CERTS => 'acceptInsecureCerts',
+    ];
+
+    public function __construct(array $capabilities = [])
     {
         $this->capabilities = $capabilities;
+    }
+
+    public static function createFromW3cCapabilities(array $capabilities = [])
+    {
+        $w3cToOss = array_flip(self::$ossToW3c);
+
+        foreach ($w3cToOss as $w3cCapability => $ossCapability) {
+            // Copy W3C capabilities to OSS ones
+            if (array_key_exists($w3cCapability, $capabilities)) {
+                $capabilities[$ossCapability] = $capabilities[$w3cCapability];
+            }
+        }
+
+        return new self($capabilities);
     }
 
     /**
@@ -86,6 +95,15 @@ class DesiredCapabilities implements WebDriverCapabilities
      */
     public function setCapability($name, $value)
     {
+        // When setting 'moz:firefoxOptions' from an array and not from instance of FirefoxOptions, we must merge
+        // it with default FirefoxOptions to keep previous behavior (where the default preferences were added
+        // using FirefoxProfile, thus not overwritten by adding 'moz:firefoxOptions')
+        // TODO: remove in next major version, once FirefoxOptions are only accepted as object instance and not as array
+        if ($name === FirefoxOptions::CAPABILITY && is_array($value)) {
+            $defaultOptions = (new FirefoxOptions())->toArray();
+            $value = array_merge($defaultOptions, $value);
+        }
+
         $this->set($name, $value);
 
         return $this;
@@ -120,6 +138,8 @@ class DesiredCapabilities implements WebDriverCapabilities
     }
 
     /**
+     * @todo Remove in next major release (BC)
+     * @deprecated All browsers are always JS enabled except HtmlUnit and it's not meaningful to disable JS execution.
      * @return bool Whether javascript is enabled.
      */
     public function isJavascriptEnabled()
@@ -131,17 +151,17 @@ class DesiredCapabilities implements WebDriverCapabilities
      * This is a htmlUnit-only option.
      *
      * @param bool $enabled
-     * @throws Exception
+     * @throws UnsupportedOperationException
      * @return DesiredCapabilities
-     * @see https://code.google.com/p/selenium/wiki/DesiredCapabilities#Read-write_capabilities
+     * @see https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#read-write-capabilities
      */
     public function setJavascriptEnabled($enabled)
     {
         $browser = $this->getBrowserName();
         if ($browser && $browser !== WebDriverBrowserType::HTMLUNIT) {
-            throw new Exception(
-                'isJavascriptEnable() is a htmlunit-only option. ' .
-                'See https://code.google.com/p/selenium/wiki/DesiredCapabilities#Read-write_capabilities.'
+            throw new UnsupportedOperationException(
+                'isJavascriptEnabled() is a htmlunit-only option. ' .
+                'See https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#read-write-capabilities.'
             );
         }
 
@@ -151,6 +171,7 @@ class DesiredCapabilities implements WebDriverCapabilities
     }
 
     /**
+     * @todo Remove side-effects - not change eg. ChromeOptions::CAPABILITY from instance of ChromeOptions to an array
      * @return array
      */
     public function toArray()
@@ -162,6 +183,13 @@ class DesiredCapabilities implements WebDriverCapabilities
                 $this->capabilities[ChromeOptions::CAPABILITY]->toArray();
         }
 
+        if (isset($this->capabilities[FirefoxOptions::CAPABILITY]) &&
+            $this->capabilities[FirefoxOptions::CAPABILITY] instanceof FirefoxOptions
+        ) {
+            $this->capabilities[FirefoxOptions::CAPABILITY] =
+                $this->capabilities[FirefoxOptions::CAPABILITY]->toArray();
+        }
+
         if (isset($this->capabilities[FirefoxDriver::PROFILE]) &&
             $this->capabilities[FirefoxDriver::PROFILE] instanceof FirefoxProfile
         ) {
@@ -170,6 +198,210 @@ class DesiredCapabilities implements WebDriverCapabilities
         }
 
         return $this->capabilities;
+    }
+
+    /**
+     * @return array
+     */
+    public function toW3cCompatibleArray()
+    {
+        $allowedW3cCapabilities = [
+            'browserName',
+            'browserVersion',
+            'platformName',
+            'acceptInsecureCerts',
+            'pageLoadStrategy',
+            'proxy',
+            'setWindowRect',
+            'timeouts',
+            'strictFileInteractability',
+            'unhandledPromptBehavior',
+        ];
+
+        $ossCapabilities = $this->toArray();
+        $w3cCapabilities = [];
+
+        foreach ($ossCapabilities as $capabilityKey => $capabilityValue) {
+            // Copy already W3C compatible capabilities
+            if (in_array($capabilityKey, $allowedW3cCapabilities, true)) {
+                $w3cCapabilities[$capabilityKey] = $capabilityValue;
+            }
+
+            // Convert capabilities with changed name
+            if (array_key_exists($capabilityKey, self::$ossToW3c)) {
+                if ($capabilityKey === WebDriverCapabilityType::PLATFORM) {
+                    $w3cCapabilities[self::$ossToW3c[$capabilityKey]] = mb_strtolower($capabilityValue);
+
+                    // Remove platformName if it is set to "any"
+                    if ($w3cCapabilities[self::$ossToW3c[$capabilityKey]] === 'any') {
+                        unset($w3cCapabilities[self::$ossToW3c[$capabilityKey]]);
+                    }
+                } else {
+                    $w3cCapabilities[self::$ossToW3c[$capabilityKey]] = $capabilityValue;
+                }
+            }
+
+            // Copy vendor extensions
+            if (mb_strpos($capabilityKey, ':') !== false) {
+                $w3cCapabilities[$capabilityKey] = $capabilityValue;
+            }
+        }
+
+        // Convert ChromeOptions
+        if (array_key_exists(ChromeOptions::CAPABILITY, $ossCapabilities)) {
+            $w3cCapabilities[ChromeOptions::CAPABILITY] = $ossCapabilities[ChromeOptions::CAPABILITY];
+        }
+
+        // Convert Firefox profile
+        if (array_key_exists(FirefoxDriver::PROFILE, $ossCapabilities)) {
+            // Convert profile only if not already set in moz:firefoxOptions
+            if (!array_key_exists(FirefoxOptions::CAPABILITY, $ossCapabilities)
+                || !array_key_exists('profile', $ossCapabilities[FirefoxOptions::CAPABILITY])) {
+                $w3cCapabilities[FirefoxOptions::CAPABILITY]['profile'] = $ossCapabilities[FirefoxDriver::PROFILE];
+            }
+        }
+
+        return $w3cCapabilities;
+    }
+
+    /**
+     * @return static
+     */
+    public static function android()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::ANDROID,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANDROID,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function chrome()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::CHROME,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function firefox()
+    {
+        $caps = new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::FIREFOX,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+
+        $caps->setCapability(FirefoxOptions::CAPABILITY, new FirefoxOptions()); // to add default options
+
+        return $caps;
+    }
+
+    /**
+     * @return static
+     */
+    public static function htmlUnit()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::HTMLUNIT,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function htmlUnitWithJS()
+    {
+        $caps = new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::HTMLUNIT,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+
+        return $caps->setJavascriptEnabled(true);
+    }
+
+    /**
+     * @return static
+     */
+    public static function internetExplorer()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IE,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::WINDOWS,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function microsoftEdge()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::MICROSOFT_EDGE,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::WINDOWS,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function iphone()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IPHONE,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::MAC,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function ipad()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IPAD,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::MAC,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function opera()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::OPERA,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+    }
+
+    /**
+     * @return static
+     */
+    public static function safari()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::SAFARI,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
+    }
+
+    /**
+     * @deprecated PhantomJS is no longer developed and its support will be removed in next major version.
+     * Use headless Chrome or Firefox instead.
+     * @return static
+     */
+    public static function phantomjs()
+    {
+        return new static([
+            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::PHANTOMJS,
+            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
+        ]);
     }
 
     /**
@@ -191,138 +423,6 @@ class DesiredCapabilities implements WebDriverCapabilities
      */
     private function get($key, $default = null)
     {
-        return isset($this->capabilities[$key])
-            ? $this->capabilities[$key]
-            : $default;
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function android()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::ANDROID,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANDROID,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function chrome()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::CHROME,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function firefox()
-    {
-        $caps = new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::FIREFOX,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-
-        // disable the "Reader View" help tooltip, which can hide elements in the window.document
-        $profile = new FirefoxProfile();
-        $profile->setPreference(FirefoxPreferences::READER_PARSE_ON_LOAD_ENABLED, false);
-        $caps->setCapability(FirefoxDriver::PROFILE, $profile);
-
-        return $caps;
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function htmlUnit()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::HTMLUNIT,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function htmlUnitWithJS()
-    {
-        $caps = new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::HTMLUNIT,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-
-        return $caps->setJavascriptEnabled(true);
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function internetExplorer()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IE,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::WINDOWS,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function iphone()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IPHONE,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::MAC,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function ipad()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::IPAD,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::MAC,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function opera()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::OPERA,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function safari()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::SAFARI,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
-    }
-
-    /**
-     * @return DesiredCapabilities
-     */
-    public static function phantomjs()
-    {
-        return new self(array(
-            WebDriverCapabilityType::BROWSER_NAME => WebDriverBrowserType::PHANTOMJS,
-            WebDriverCapabilityType::PLATFORM => WebDriverPlatform::ANY,
-        ));
+        return $this->capabilities[$key] ?? $default;
     }
 }
