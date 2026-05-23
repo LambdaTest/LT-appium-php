@@ -1,8 +1,6 @@
 {
     "require": {
-      "phpunit/phpunit-selenium": "*",
-      "facebook/webdriver": "dev-master",
-        "phpwhois/phpwhois": "^4.2",
-        "php-webdriver/webdriver": "^1.1"
-    }  
-  }
+        "php-webdriver/webdriver": "^1.12",
+        "php": ">=7.4"
+    }
+}

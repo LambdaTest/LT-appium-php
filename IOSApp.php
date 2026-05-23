@@ -9,66 +9,158 @@ require __dir__.'/vendor/autoload.php';
  use Facebook\WebDriver\WebDriverExpectedCondition;
 
  $caps = array(
-    "app"=>"lt://proverbial-ios", // Enter app_url here
-    "deviceName"=>"iPhone 11",
-    "platformName"=>"ios",
-    "isRealMobile"=>true,
-    "video"=>true,
-    "visual"=>true,
-    "queueTimeout"=>"300",
-    "name"=>"Php - iOS test",
+    "deviceName" => "iPhone .*",
+    "platformName" => "iOS",
+    "platformVersion" => "14",
+    "isRealMobile" => TRUE,
+    "visual" => TRUE,
+    "video" => TRUE,
+    "app" => getenv("IOS_APP_ID"),
+    "name" => "Php - iOS test",
     "build" => "Php Vanilla - iOS"
  );
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
+    $username = getenv("LT_USERNAME");
+    $accesskey = getenv("LT_ACCESS_KEY");
 
- @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps,3600000,3600000);
+    if (!$username || !$accesskey) {
+        throw new Exception("Please set LT_USERNAME and LT_ACCESS_KEY environment variables");
+    }
 
-try{
-    $wait = new WebDriverWait($driver, 120);
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('color')));
+    if (!getenv("IOS_APP_ID")) {
+        throw new Exception("Please set IOS_APP_ID environment variable");
+    }
+
+    echo "Creating session with LambdaTest...\n";
+    @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
+    echo "Session created successfully!\n";
+
+try {
+    echo "Initializing WebDriverWait...\n";
+    $wait = new WebDriverWait($driver, 30);
+    
+    // Wait for app to load
+    echo "Waiting for app to load...\n";
+    sleep(5);
+    
+    // Find and click color button
+    echo "Looking for color button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('color')));
+    echo "Color button found!\n";
     $color_element = $driver->findElement(WebDriverBy::id('color'));
+    echo "Clicking color button...\n";
     $color_element->click();
+    echo "Color button clicked!\n";
+    sleep(2);
 
+    // Find and click text button
+    echo "Looking for text button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('Text')));
+    echo "Text button found!\n";
     $text_element = $driver->findElement(WebDriverBy::id('Text'));
+    echo "Clicking text button...\n";
     $text_element->click();
+    echo "Text button clicked!\n";
+    sleep(2);
 
+    // Find and click toast button
+    echo "Looking for toast button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('toast')));
+    echo "Toast button found!\n";
     $toast_element = $driver->findElement(WebDriverBy::id('toast'));
+    echo "Clicking toast button...\n";
     $toast_element->click();
+    echo "Toast button clicked!\n";
+    sleep(2);
 
+    // Find and click notification button
+    echo "Looking for notification button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('notification')));
+    echo "Notification button found!\n";
     $notification_element = $driver->findElement(WebDriverBy::id('notification'));
+    echo "Clicking notification button...\n";
     $notification_element->click();
+    echo "Notification button clicked!\n";
     sleep(2);
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('geoLocation')));
+    // Find and click geolocation button
+    echo "Looking for geolocation button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('geoLocation')));
+    echo "Geolocation button found!\n";
     $geolocation_element = $driver->findElement(WebDriverBy::id('geoLocation'));
+    echo "Clicking geolocation button...\n";
     $geolocation_element->click();
+    echo "Geolocation button clicked!\n";
     sleep(5);
 
+    // Find and click back button
+    echo "Looking for back button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('Back')));
+    echo "Back button found!\n";
     $home_element = $driver->findElement(WebDriverBy::id('Back'));
+    echo "Clicking back button...\n";
     $home_element->click();
-
-    $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
-    $speedtest_element->click();
-    sleep(5);
-
-    $home_element = $driver->findElement(WebDriverBy::id('Back'));
-    $home_element->click();
-
-    $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
-    $browser_element->click();
-
-    $url_element = $driver->findElement(WebDriverBy::id('url'));
-    $url_element->sendKeys("https://www.lambdatest.com");
-
-    $find_element = $driver->findElement(WebDriverBy::id('find'));
-    $find_element->click();
+    echo "Back button clicked!\n";
     sleep(2);
 
+    // Find and click speedtest button
+    echo "Looking for speedtest button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('speedTest')));
+    echo "Speedtest button found!\n";
+    $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
+    echo "Clicking speedtest button...\n";
+    $speedtest_element->click();
+    echo "Speedtest button clicked!\n";
+    sleep(5);
+
+    // Find and click back button
+    echo "Looking for back button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('Back')));
+    echo "Back button found!\n";
+    $home_element = $driver->findElement(WebDriverBy::id('Back'));
+    echo "Clicking back button...\n";
+    $home_element->click();
+    echo "Back button clicked!\n";
+    sleep(2);
+
+    // Find and click browser button
+    echo "Looking for browser button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('Browser')));
+    echo "Browser button found!\n";
+    $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
+    echo "Clicking browser button...\n";
+    $browser_element->click();
+    echo "Browser button clicked!\n";
+    sleep(2);
+
+    // Find and enter URL
+    echo "Looking for URL input field...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('url')));
+    echo "URL input field found!\n";
+    $url_element = $driver->findElement(WebDriverBy::id('url'));
+    echo "Entering URL...\n";
+    $url_element->sendKeys("https://www.lambdatest.com");
+    echo "URL entered!\n";
+    sleep(2);
+
+    // Find and click find button
+    echo "Looking for find button...\n";
+    $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('find')));
+    echo "Find button found!\n";
+    $find_element = $driver->findElement(WebDriverBy::id('find'));
+    echo "Clicking find button...\n";
+    $find_element->click();
+    echo "Find button clicked!\n";
+    sleep(5);
+
+} catch (Exception $e) {
+    echo "Test failed with error: " . $e->getMessage() . "\n";
+    echo "Error occurred at line: " . $e->getLine() . "\n";
+    echo "Stack trace: " . $e->getTraceAsString() . "\n";
+} finally {
+    echo "Quitting driver...\n";
     $driver->quit();
- }  finally {
-     $driver->quit();
- }
+    echo "Driver quit successfully!\n";
+}
 
 ?>
