@@ -1,46 +1,44 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
 
 use Facebook\WebDriver\Exception\IndexOutOfBoundsException;
+use Facebook\WebDriver\Exception\Internal\LogicException;
+use Facebook\WebDriver\Exception\UnsupportedOperationException;
 use Facebook\WebDriver\Remote\DriverCommand;
+use Facebook\WebDriver\Remote\ExecuteMethod;
 
 /**
  * An abstraction allowing the driver to manipulate the browser's window
  */
 class WebDriverWindow
 {
+    /**
+     * @var ExecuteMethod
+     */
     protected $executor;
+    /**
+     * @var bool
+     */
+    protected $isW3cCompliant;
 
-    public function __construct($executor)
+    public function __construct(ExecuteMethod $executor, $isW3cCompliant = false)
     {
         $this->executor = $executor;
+        $this->isW3cCompliant = $isW3cCompliant;
     }
 
     /**
      * Get the position of the current window, relative to the upper left corner
      * of the screen.
      *
-     * @return array The current window position.
+     * @return WebDriverPoint The current window position.
      */
     public function getPosition()
     {
         $position = $this->executor->execute(
             DriverCommand::GET_WINDOW_POSITION,
-            array(':windowHandle' => 'current')
+            [':windowHandle' => 'current']
         );
 
         return new WebDriverPoint(
@@ -53,13 +51,13 @@ class WebDriverWindow
      * Get the size of the current window. This will return the outer window
      * dimension, not just the view port.
      *
-     * @return array The current window size.
+     * @return WebDriverDimension The current window size.
      */
     public function getSize()
     {
         $size = $this->executor->execute(
             DriverCommand::GET_WINDOW_SIZE,
-            array(':windowHandle' => 'current')
+            [':windowHandle' => 'current']
         );
 
         return new WebDriverDimension(
@@ -69,16 +67,52 @@ class WebDriverWindow
     }
 
     /**
+     * Minimizes the current window if it is not already minimized.
+     *
+     * @return WebDriverWindow The instance.
+     */
+    public function minimize()
+    {
+        if (!$this->isW3cCompliant) {
+            throw new UnsupportedOperationException('Minimize window is only supported in W3C mode');
+        }
+
+        $this->executor->execute(DriverCommand::MINIMIZE_WINDOW, []);
+
+        return $this;
+    }
+
+    /**
      * Maximizes the current window if it is not already maximized
      *
      * @return WebDriverWindow The instance.
      */
     public function maximize()
     {
-        $this->executor->execute(
-            DriverCommand::MAXIMIZE_WINDOW,
-            array(':windowHandle' => 'current')
-        );
+        if ($this->isW3cCompliant) {
+            $this->executor->execute(DriverCommand::MAXIMIZE_WINDOW, []);
+        } else {
+            $this->executor->execute(
+                DriverCommand::MAXIMIZE_WINDOW,
+                [':windowHandle' => 'current']
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Makes the current window full screen.
+     *
+     * @return WebDriverWindow The instance.
+     */
+    public function fullscreen()
+    {
+        if (!$this->isW3cCompliant) {
+            throw new UnsupportedOperationException('The Fullscreen window command is only supported in W3C mode');
+        }
+
+        $this->executor->execute(DriverCommand::FULLSCREEN_WINDOW, []);
 
         return $this;
     }
@@ -87,16 +121,15 @@ class WebDriverWindow
      * Set the size of the current window. This will change the outer window
      * dimension, not just the view port.
      *
-     * @param WebDriverDimension $size
      * @return WebDriverWindow The instance.
      */
     public function setSize(WebDriverDimension $size)
     {
-        $params = array(
+        $params = [
             'width' => $size->getWidth(),
             'height' => $size->getHeight(),
             ':windowHandle' => 'current',
-        );
+        ];
         $this->executor->execute(DriverCommand::SET_WINDOW_SIZE, $params);
 
         return $this;
@@ -106,16 +139,15 @@ class WebDriverWindow
      * Set the position of the current window. This is relative to the upper left
      * corner of the screen.
      *
-     * @param WebDriverPoint $position
      * @return WebDriverWindow The instance.
      */
     public function setPosition(WebDriverPoint $position)
     {
-        $params = array(
+        $params = [
             'x' => $position->getX(),
             'y' => $position->getY(),
             ':windowHandle' => 'current',
-        );
+        ];
         $this->executor->execute(DriverCommand::SET_WINDOW_POSITION, $params);
 
         return $this;
@@ -141,16 +173,14 @@ class WebDriverWindow
      */
     public function setScreenOrientation($orientation)
     {
-        $orientation = strtoupper($orientation);
-        if (!in_array($orientation, array('PORTRAIT', 'LANDSCAPE'))) {
-            throw new IndexOutOfBoundsException(
-                'Orientation must be either PORTRAIT, or LANDSCAPE'
-            );
+        $orientation = mb_strtoupper($orientation);
+        if (!in_array($orientation, ['PORTRAIT', 'LANDSCAPE'], true)) {
+            throw LogicException::forError('Orientation must be either PORTRAIT, or LANDSCAPE');
         }
 
         $this->executor->execute(
             DriverCommand::SET_SCREEN_ORIENTATION,
-            array('orientation' => $orientation)
+            ['orientation' => $orientation]
         );
 
         return $this;

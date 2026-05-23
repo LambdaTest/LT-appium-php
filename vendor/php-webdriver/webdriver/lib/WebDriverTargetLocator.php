@@ -1,17 +1,4 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
 
@@ -20,9 +7,14 @@ namespace Facebook\WebDriver;
  */
 interface WebDriverTargetLocator
 {
+    /** @var string */
+    public const WINDOW_TYPE_WINDOW = 'window';
+    /** @var string */
+    public const WINDOW_TYPE_TAB = 'tab';
+
     /**
-     * Switch to the main document if the page contains iframes. Otherwise, switch
-     * to the first frame on the page.
+     * Set the current browsing context to the current top-level browsing context.
+     * This is the same as calling `RemoteTargetLocator::frame(null);`
      *
      * @return WebDriver The driver focused on the top window or the first frame.
      */
@@ -31,32 +23,45 @@ interface WebDriverTargetLocator
     /**
      * Switch to the iframe by its id or name.
      *
-     * @param WebDriverElement|string $frame The WebDriverElement,
-     *                                       the id or the name of the frame.
+     * @param WebDriverElement|null|int|string $frame The WebDriverElement, the id or the name of the frame.
+     * When null, switch to the current top-level browsing context When int, switch to the WindowProxy identified
+     * by the value. When an Element, switch to that Element.
+     *
+     * @throws \InvalidArgumentException
      * @return WebDriver The driver focused on the given frame.
      */
     public function frame($frame);
+
+    // TODO: Add in next major release (BC)
+    ///**
+    // * Switch to the parent iframe.
+    // *
+    // * @return WebDriver This driver focused on the parent frame
+    // */
+    //public function parent();
 
     /**
      * Switch the focus to another window by its handle.
      *
      * @param string $handle The handle of the window to be focused on.
-     * @return WebDriver Tge driver focused on the given window.
+     * @return WebDriver The driver focused on the given window.
      * @see WebDriver::getWindowHandles
      */
     public function window($handle);
 
+    // TODO: Add in next major release (BC)
+    //public function newWindow($windowType = self::WINDOW_TYPE_TAB);
+
     /**
-     * Switch to the currently active modal dialog for this particular driver
-     * instance.
+     * Switch to the currently active modal dialog for this particular driver instance.
      *
      * @return WebDriverAlert
      */
     public function alert();
 
     /**
-     * Switches to the element that currently has focus within the document
-     * currently "switched to", or the body element if this cannot be detected.
+     * Switches to the element that currently has focus within the document currently "switched to",
+     * or the body element if this cannot be detected.
      *
      * @return WebDriverElement
      */

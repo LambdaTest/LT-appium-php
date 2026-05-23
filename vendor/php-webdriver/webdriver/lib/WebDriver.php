@@ -1,19 +1,8 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
+
+use Facebook\WebDriver\Interactions\Touch\WebDriverTouchScreen;
 
 /**
  * The interface for WebDriver.
@@ -113,7 +102,7 @@ interface WebDriver extends WebDriverSearchContext
      * An abstraction allowing the driver to access the browser's history and to
      * navigate to a given URL.
      *
-     * @return WebDriverNavigation
+     * @return WebDriverNavigationInterface
      * @see WebDriverNavigation
      */
     public function navigate();
@@ -126,10 +115,29 @@ interface WebDriver extends WebDriverSearchContext
      */
     public function switchTo();
 
+    // TODO: Add in next major release (BC)
+    ///**
+    // * @return WebDriverTouchScreen
+    // */
+    //public function getTouch();
+
     /**
      * @param string $name
      * @param array $params
      * @return mixed
      */
     public function execute($name, $params);
+
+    // TODO: Add in next major release (BC)
+    ///**
+    // * Execute custom commands on remote end.
+    // * For example vendor-specific commands or other commands not implemented by php-webdriver.
+    // *
+    // * @see https://github.com/php-webdriver/php-webdriver/wiki/Custom-commands
+    // * @param string $endpointUrl
+    // * @param string $method
+    // * @param array $params
+    // * @return mixed|null
+    // */
+    //public function executeCustomCommand($endpointUrl, $method = 'GET', $params = []);
 }

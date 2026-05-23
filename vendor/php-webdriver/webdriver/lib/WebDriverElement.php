@@ -1,19 +1,8 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver;
+
+use Facebook\WebDriver\Remote\ShadowRoot;
 
 /**
  * Interface for an HTML element in the WebDriver framework.
@@ -21,8 +10,7 @@ namespace Facebook\WebDriver;
 interface WebDriverElement extends WebDriverSearchContext
 {
     /**
-     * If this element is a TEXTAREA or text INPUT element, this will clear the
-     * value.
+     * If this element is a TEXTAREA or text INPUT element, this will clear the value.
      *
      * @return WebDriverElement The current instance.
      */
@@ -36,12 +24,25 @@ interface WebDriverElement extends WebDriverSearchContext
     public function click();
 
     /**
-     * Get the value of a the given attribute of the element.
+     * Get the value of the given attribute of the element.
+     * Attribute is meant what is declared in the HTML markup of the element.
+     * To read a value of a IDL "JavaScript" property (like `innerHTML`), use `getDomProperty()` method.
      *
      * @param string $attribute_name The name of the attribute.
-     * @return string The value of the attribute.
+     * @return string|null The value of the attribute.
      */
     public function getAttribute($attribute_name);
+
+    /*
+     * Gets the value of a IDL JavaScript property of this element (for example `innerHTML`, `tagName` etc.).
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Glossary/IDL
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Element#properties
+     * @param string $propertyName
+     * @return string|null The property's current value or null if the value is not set or the property does not exist.
+     * @todo Add in next major release (BC)
+     */
+    // public function getDomProperty($propertyName);
 
     /**
      * Get the value of a given CSS property.
@@ -133,4 +134,21 @@ interface WebDriverElement extends WebDriverSearchContext
      * @return string The opaque ID.
      */
     public function getID();
+
+    /**
+     * Take screenshot of a specific element.
+     *
+     * @param string $save_as The path of the screenshot to be saved.
+     * @return string The screenshot in PNG format.
+     * @todo Add in next major release (BC)
+     */
+    //public function takeElementScreenshot($save_as = null);
+
+    /**
+     * Get representation of an element's shadow root for accessing the shadow DOM of a web component.
+     *
+     * @return ShadowRoot
+     * @todo Add in next major release (BC)
+     */
+    //public function getShadowRoot();
 }

@@ -1,74 +1,101 @@
 <?php
 
-namespace Facebook\WebDriver;
-require __dir__.'/vendor/autoload.php';
- use Facebook\WebDriver\Remote\DesiredCapabilities;
- use Facebook\WebDriver\Remote\RemoteWebDriver;
- use Facebook\WebDriver\WebDriverBy;
- use Facebook\WebDriver\WebDriverWait;
- use Facebook\WebDriver\WebDriverExpectedCondition;
+require __DIR__ . '/vendor/autoload.php';
 
- $caps = array(
-    "app"=>"lt://proverbial-ios", // Enter app_url here
-    "deviceName"=>"iPhone 11",
-    "platformName"=>"ios",
-    "isRealMobile"=>true,
-    "video"=>true,
-    "visual"=>true,
-    "queueTimeout"=>"300",
-    "name"=>"Php - iOS test",
-    "build" => "Php Vanilla - iOS"
- );
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverWait;
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
+// --------------------
+// LambdaTest creds
+// --------------------
+$username  = getenv("LT_USERNAME") ?: "USERNAME";
+$accesskey = getenv("LT_ACCESS_KEY") ?: "ACCESS_KEY";
 
- @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps,3600000,3600000);
+// --------------------
+// Capabilities (iOS native-safe)
+// --------------------
+$caps = [
+    "platformName" => "iOS",
+    "appium:deviceName" => "iPhone 16 Pro Max",
+    "appium:platformVersion" => "18",
+    "appium:automationName" => "XCUITest",
+    "appium:app" => "lt://proverbial-ios",
 
-try{
-    $wait = new WebDriverWait($driver, 120);
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('color')));
-    $color_element = $driver->findElement(WebDriverBy::id('color'));
-    $color_element->click();
+    "LT:Options" => [
+        "isRealMobile" => true,
+        "build" => "PHP 8.5 iOS Appium",
+        "name"  => "PHP iOS Native App Test",
+        "video" => true,
+        "visual" => true,
+        "newCommandTimeout" => 300
+    ]
+];
 
-    $text_element = $driver->findElement(WebDriverBy::id('Text'));
-    $text_element->click();
+// --------------------
+// Create driver
+// --------------------
+$driver = RemoteWebDriver::create(
+    "https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",
+    $caps,
+    60000,
+    60000
+);
 
-    $toast_element = $driver->findElement(WebDriverBy::id('toast'));
-    $toast_element->click();
+$wait = new WebDriverWait($driver, 30, 500);
 
-    $notification_element = $driver->findElement(WebDriverBy::id('notification'));
-    $notification_element->click();
+try {
+
+    // ---------- COLOR ----------
+    $wait->until(function () use ($driver) {
+        return count($driver->findElements(WebDriverBy::id("color"))) > 0;
+    });
+    $driver->findElement(WebDriverBy::id("color"))->click();
+    sleep(1);
+
+    // ---------- TEXT ----------
+    $driver->findElement(WebDriverBy::id("Text"))->click();
+    sleep(1);
+
+    // ---------- TOAST ----------
+    $driver->findElement(WebDriverBy::id("toast"))->click();
+    sleep(1);
+
+    // ---------- NOTIFICATION ----------
+    $driver->findElement(WebDriverBy::id("notification"))->click();
     sleep(2);
 
-    $wait->until(WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::id('geoLocation')));
-    $geolocation_element = $driver->findElement(WebDriverBy::id('geoLocation'));
-    $geolocation_element->click();
+    // ---------- GEO LOCATION ----------
+    $wait->until(function () use ($driver) {
+        return count($driver->findElements(WebDriverBy::id("geoLocation"))) > 0;
+    });
+    $driver->findElement(WebDriverBy::id("geoLocation"))->click();
     sleep(5);
 
-    $home_element = $driver->findElement(WebDriverBy::id('Back'));
-    $home_element->click();
+    // ---------- BACK ----------
+    $driver->findElement(WebDriverBy::id("Back"))->click();
+    sleep(1);
 
-    $speedtest_element = $driver->findElement(WebDriverBy::id('speedTest'));
-    $speedtest_element->click();
+    // ---------- SPEED TEST ----------
+    $driver->findElement(WebDriverBy::id("speedTest"))->click();
     sleep(5);
 
-    $home_element = $driver->findElement(WebDriverBy::id('Back'));
-    $home_element->click();
+    // ---------- BACK ----------
+    $driver->findElement(WebDriverBy::id("Back"))->click();
+    sleep(1);
 
-    $browser_element = $driver->findElement(WebDriverBy::id('Browser'));
-    $browser_element->click();
+    // ---------- BROWSER ----------
+    $driver->findElement(WebDriverBy::id("Browser"))->click();
+    sleep(1);
 
-    $url_element = $driver->findElement(WebDriverBy::id('url'));
-    $url_element->sendKeys("https://www.lambdatest.com");
+    // ---------- URL ----------
+    $driver->findElement(WebDriverBy::id("url"))
+           ->sendKeys("https://www.lambdatest.com");
 
-    $find_element = $driver->findElement(WebDriverBy::id('find'));
-    $find_element->click();
-    sleep(2);
+    $driver->findElement(WebDriverBy::id("find"))->click();
+    sleep(3);
 
+} finally {
     $driver->quit();
- }  finally {
-     $driver->quit();
- }
-
-?>
+}

@@ -1,86 +1,107 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Chrome;
 
-use Facebook\WebDriver\Exception\WebDriverException;
+use Facebook\WebDriver\Local\LocalWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Remote\DriverCommand;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\Service\DriverCommandExecutor;
 use Facebook\WebDriver\Remote\WebDriverCommand;
 
-class ChromeDriver extends RemoteWebDriver
+class ChromeDriver extends LocalWebDriver
 {
-    public static function start(DesiredCapabilities $desired_capabilities = null, ChromeDriverService $service = null)
-    {
-        if ($desired_capabilities === null) {
-            $desired_capabilities = DesiredCapabilities::chrome();
-        }
-        if ($service === null) {
+    /** @var ChromeDevToolsDriver */
+    private $devTools;
+
+    /**
+     * Creates a new ChromeDriver using default configuration.
+     * This includes starting a new chromedriver process each time this method is called. However this may be
+     * unnecessary overhead - instead, you can start the process once using ChromeDriverService and pass
+     * this instance to startUsingDriverService() method.
+     *
+     * @todo Remove $service parameter. Use `ChromeDriver::startUsingDriverService` to pass custom $service instance.
+     * @return static
+     */
+    public static function start(
+        ?DesiredCapabilities $desired_capabilities = null,
+        ?ChromeDriverService $service = null
+    ) {
+        if ($service === null) { // TODO: Remove the condition (always create default service)
             $service = ChromeDriverService::createDefaultService();
         }
-        $executor = new DriverCommandExecutor($service);
-        $driver = new static();
-        $driver->setCommandExecutor($executor)
-            ->startSession($desired_capabilities);
 
-        return $driver;
+        return static::startUsingDriverService($service, $desired_capabilities);
     }
 
-    public function startSession($desired_capabilities)
+    /**
+     * Creates a new ChromeDriver using given ChromeDriverService.
+     * This is usable when you for example don't want to start new chromedriver process for each individual test
+     * and want to reuse the already started chromedriver, which will lower the overhead associated with spinning up
+     * a new process.
+
+     * @return static
+     */
+    public static function startUsingDriverService(
+        ChromeDriverService $service,
+        ?DesiredCapabilities $capabilities = null
+    ) {
+        if ($capabilities === null) {
+            $capabilities = DesiredCapabilities::chrome();
+        }
+
+        $executor = new DriverCommandExecutor($service);
+        $newSessionCommand = WebDriverCommand::newSession(
+            [
+                'capabilities' => [
+                    'firstMatch' => [(object) $capabilities->toW3cCompatibleArray()],
+                ],
+                'desiredCapabilities' => (object) $capabilities->toArray(),
+            ]
+        );
+
+        $response = $executor->execute($newSessionCommand);
+
+        /*
+         * TODO: in next major version we may not need to use this method, because without OSS compatibility the
+         * driver creation is straightforward.
+         */
+        return static::createFromResponse($response, $executor);
+    }
+
+    /**
+     * @todo Remove in next major version. The class is internally no longer used and is kept only to keep BC.
+     * @deprecated Use start or startUsingDriverService method instead.
+     * @codeCoverageIgnore
+     * @internal
+     */
+    public function startSession(DesiredCapabilities $desired_capabilities)
     {
-        $command = new WebDriverCommand(
-            null,
-            DriverCommand::NEW_SESSION,
-            array(
-                'desiredCapabilities' => $desired_capabilities->toArray(),
-            )
+        $command = WebDriverCommand::newSession(
+            [
+                'capabilities' => [
+                    'firstMatch' => [(object) $desired_capabilities->toW3cCompatibleArray()],
+                ],
+                'desiredCapabilities' => (object) $desired_capabilities->toArray(),
+            ]
         );
         $response = $this->executor->execute($command);
-        $this->setSessionID($response->getSessionID());
+        $value = $response->getValue();
+
+        if (!$this->isW3cCompliant = isset($value['capabilities'])) {
+            $this->executor->disableW3cCompliance();
+        }
+
+        $this->sessionID = $response->getSessionID();
     }
 
     /**
-     * Always throws an exception. Use ChromeDriver::start() instead.
-     *
-     * @throws WebDriverException
+     * @return ChromeDevToolsDriver
      */
-    public static function create(
-        $url = 'http://localhost:4444/wd/hub',
-        $desired_capabilities = null,
-        $connection_timeout_in_ms = null,
-        $request_timeout_in_ms = null,
-        $http_proxy = null,
-        $http_proxy_port = null
-    ) {
-        throw new WebDriverException('Please use ChromeDriver::start() instead.');
-    }
+    public function getDevTools()
+    {
+        if ($this->devTools === null) {
+            $this->devTools = new ChromeDevToolsDriver($this);
+        }
 
-    /**
-     * Always throws an exception. Use ChromeDriver::start() instead.
-     *
-     * @param string $session_id The existing session id
-     * @param string $url The url of the remote server
-     *
-     * @throws WebDriverException
-     */
-    public static function createBySessionID(
-        $session_id,
-        $url = 'http://localhost:4444/wd/hub'
-    ) {
-        throw new WebDriverException('Please use ChromeDriver::start() instead.');
+        return $this->devTools;
     }
 }

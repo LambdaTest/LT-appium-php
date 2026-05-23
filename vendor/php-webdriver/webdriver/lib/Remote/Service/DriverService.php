@@ -1,23 +1,16 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Remote\Service;
 
-use Exception;
+use Facebook\WebDriver\Exception\Internal\IOException;
+use Facebook\WebDriver\Exception\Internal\RuntimeException;
 use Facebook\WebDriver\Net\URLChecker;
+use Symfony\Component\Process\Process;
 
+/**
+ * Start local WebDriver service (when remote WebDriver server is not used).
+ * This will start new process of respective browser driver and take care of its lifecycle.
+ */
 class DriverService
 {
     /**
@@ -41,7 +34,7 @@ class DriverService
     private $environment;
 
     /**
-     * @var resource
+     * @var Process|null
      */
     private $process;
 
@@ -51,9 +44,9 @@ class DriverService
      * @param array $args
      * @param array|null $environment Use the system environment if it is null
      */
-    public function __construct($executable, $port, $args = array(), $environment = null)
+    public function __construct($executable, $port, $args = [], $environment = null)
     {
-        $this->executable = self::checkExecutable($executable);
+        $this->setExecutable($executable);
         $this->url = sprintf('http://localhost:%d', $port);
         $this->args = $args;
         $this->environment = $environment ?: $_ENV;
@@ -76,18 +69,10 @@ class DriverService
             return $this;
         }
 
-        $pipes = array();
-        $this->process = proc_open(
-            sprintf('%s %s', $this->executable, implode(' ', $this->args)),
-            $descriptorspec = array(
-                0 => array('pipe', 'r'), // stdin
-                1 => array('pipe', 'w'), // stdout
-                2 => array('pipe', 'a'), // stderr
-            ),
-            $pipes,
-            null,
-            $this->environment
-        );
+        $this->process = $this->createProcess();
+        $this->process->start();
+
+        $this->checkWasStarted($this->process);
 
         $checker = new URLChecker();
         $checker->waitUntilAvailable(20 * 1000, $this->url . '/status');
@@ -104,7 +89,7 @@ class DriverService
             return $this;
         }
 
-        proc_terminate($this->process);
+        $this->process->stop();
         $this->process = null;
 
         $checker = new URLChecker();
@@ -122,28 +107,77 @@ class DriverService
             return false;
         }
 
-        $status = proc_get_status($this->process);
-
-        return $status['running'];
+        return $this->process->isRunning();
     }
 
     /**
-     * Check if the executable is executable.
-     *
+     * @deprecated Has no effect. Will be removed in next major version. Executable is now checked
+     * when calling setExecutable().
      * @param string $executable
-     * @throws Exception
      * @return string
      */
     protected static function checkExecutable($executable)
     {
-        if (!is_file($executable)) {
-            throw new Exception("'$executable' is not a file.");
-        }
-
-        if (!is_executable($executable)) {
-            throw new Exception("'$executable' is not executable.");
-        }
-
         return $executable;
+    }
+
+    /**
+     * @param string $executable
+     * @throws IOException
+     */
+    protected function setExecutable($executable)
+    {
+        if ($this->isExecutable($executable)) {
+            $this->executable = $executable;
+
+            return;
+        }
+
+        throw IOException::forFileError(
+            'File is not executable. Make sure the path is correct or use environment variable to specify'
+            . ' location of the executable.',
+            $executable
+        );
+    }
+
+    /**
+     * @param Process $process
+     */
+    protected function checkWasStarted($process)
+    {
+        usleep(10000); // wait 10ms, otherwise the asynchronous process failure may not yet be propagated
+
+        if (!$process->isRunning()) {
+            throw RuntimeException::forDriverError($process);
+        }
+    }
+
+    private function createProcess(): Process
+    {
+        $commandLine = array_merge([$this->executable], $this->args);
+
+        return new Process($commandLine, null, $this->environment);
+    }
+
+    /**
+     * Check whether given file is executable directly or using system PATH
+     */
+    private function isExecutable(string $filename): bool
+    {
+        if (is_executable($filename)) {
+            return true;
+        }
+        if ($filename !== basename($filename)) { // $filename is an absolute path, do no try to search it in PATH
+            return false;
+        }
+
+        $paths = explode(PATH_SEPARATOR, getenv('PATH'));
+        foreach ($paths as $path) {
+            if (is_executable($path . DIRECTORY_SEPARATOR . $filename)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

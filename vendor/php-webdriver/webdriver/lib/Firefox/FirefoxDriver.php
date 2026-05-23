@@ -1,25 +1,68 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Firefox;
 
-class FirefoxDriver
-{
-    const PROFILE = 'firefox_profile';
+use Facebook\WebDriver\Local\LocalWebDriver;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\Service\DriverCommandExecutor;
+use Facebook\WebDriver\Remote\WebDriverCommand;
 
-    private function __construct()
+class FirefoxDriver extends LocalWebDriver
+{
+    /**
+     * @deprecated Pass Firefox Profile using FirefoxOptions:
+     * $firefoxOptions = new FirefoxOptions();
+     * $firefoxOptions->setProfile($profile->encode());
+     * $capabilities = DesiredCapabilities::firefox();
+     * $capabilities->setCapability(FirefoxOptions::CAPABILITY, $firefoxOptions);
+     */
+    public const PROFILE = 'firefox_profile';
+
+    /**
+     * Creates a new FirefoxDriver using default configuration.
+     * This includes starting a new geckodriver process  each time this method is called. However this may be
+     * unnecessary overhead - instead, you can start the process once using FirefoxDriverService and pass
+     * this instance to startUsingDriverService() method.
+     *
+     * @return static
+     */
+    public static function start(?DesiredCapabilities $capabilities = null)
     {
+        $service = FirefoxDriverService::createDefaultService();
+
+        return static::startUsingDriverService($service, $capabilities);
+    }
+
+    /**
+     * Creates a new FirefoxDriver using given FirefoxDriverService.
+     * This is usable when you for example don't want to start new geckodriver process for each individual test
+     * and want to reuse the already started geckodriver, which will lower the overhead associated with spinning up
+     * a new process.
+     *
+     * @return static
+     */
+    public static function startUsingDriverService(
+        FirefoxDriverService $service,
+        ?DesiredCapabilities $capabilities = null
+    ) {
+        if ($capabilities === null) {
+            $capabilities = DesiredCapabilities::firefox();
+        }
+
+        $executor = new DriverCommandExecutor($service);
+        $newSessionCommand = WebDriverCommand::newSession(
+            [
+                'capabilities' => [
+                    'firstMatch' => [(object) $capabilities->toW3cCompatibleArray()],
+                ],
+            ]
+        );
+
+        $response = $executor->execute($newSessionCommand);
+
+        $returnedCapabilities = DesiredCapabilities::createFromW3cCapabilities($response->getValue()['capabilities']);
+        $sessionId = $response->getSessionID();
+
+        return new static($executor, $sessionId, $returnedCapabilities, true);
     }
 }

@@ -1,17 +1,4 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Interactions;
 
@@ -25,8 +12,8 @@ use Facebook\WebDriver\Interactions\Internal\WebDriverKeyUpAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverMouseMoveAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverMoveToOffsetAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverSendKeysAction;
-use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverElement;
+use Facebook\WebDriver\WebDriverHasInputDevices;
 
 /**
  * WebDriver action builder. It implements the builder pattern.
@@ -38,7 +25,7 @@ class WebDriverActions
     protected $mouse;
     protected $action;
 
-    public function __construct(WebDriver $driver)
+    public function __construct(WebDriverHasInputDevices $driver)
     {
         $this->driver = $driver;
         $this->keyboard = $driver->getKeyboard();
@@ -58,10 +45,9 @@ class WebDriverActions
      * Mouse click.
      * If $element is provided, move to the middle of the element first.
      *
-     * @param WebDriverElement $element
      * @return WebDriverActions
      */
-    public function click(WebDriverElement $element = null)
+    public function click(?WebDriverElement $element = null)
     {
         $this->action->addAction(
             new WebDriverClickAction($this->mouse, $element)
@@ -74,10 +60,9 @@ class WebDriverActions
      * Mouse click and hold.
      * If $element is provided, move to the middle of the element first.
      *
-     * @param WebDriverElement $element
      * @return WebDriverActions
      */
-    public function clickAndHold(WebDriverElement $element = null)
+    public function clickAndHold(?WebDriverElement $element = null)
     {
         $this->action->addAction(
             new WebDriverClickAndHoldAction($this->mouse, $element)
@@ -90,10 +75,9 @@ class WebDriverActions
      * Context-click (right click).
      * If $element is provided, move to the middle of the element first.
      *
-     * @param WebDriverElement $element
      * @return WebDriverActions
      */
-    public function contextClick(WebDriverElement $element = null)
+    public function contextClick(?WebDriverElement $element = null)
     {
         $this->action->addAction(
             new WebDriverContextClickAction($this->mouse, $element)
@@ -106,10 +90,9 @@ class WebDriverActions
      * Double click.
      * If $element is provided, move to the middle of the element first.
      *
-     * @param WebDriverElement $element
      * @return WebDriverActions
      */
-    public function doubleClick(WebDriverElement $element = null)
+    public function doubleClick(?WebDriverElement $element = null)
     {
         $this->action->addAction(
             new WebDriverDoubleClickAction($this->mouse, $element)
@@ -121,8 +104,6 @@ class WebDriverActions
     /**
      * Drag and drop from $source to $target.
      *
-     * @param WebDriverElement $source
-     * @param WebDriverElement $target
      * @return WebDriverActions
      */
     public function dragAndDrop(WebDriverElement $source, WebDriverElement $target)
@@ -143,7 +124,6 @@ class WebDriverActions
     /**
      * Drag $source and drop by offset ($x_offset, $y_offset).
      *
-     * @param WebDriverElement $source
      * @param int $x_offset
      * @param int $y_offset
      * @return WebDriverActions
@@ -184,7 +164,6 @@ class WebDriverActions
      * Extra shift, calculated from the top-left corner of the element, can be set by passing $x_offset and $y_offset
      * parameters.
      *
-     * @param WebDriverElement $element
      * @param int $x_offset
      * @param int $y_offset
      * @return WebDriverActions
@@ -205,10 +184,9 @@ class WebDriverActions
      * Release the mouse button.
      * If $element is provided, move to the middle of the element first.
      *
-     * @param WebDriverElement $element
      * @return WebDriverActions
      */
-    public function release(WebDriverElement $element = null)
+    public function release(?WebDriverElement $element = null)
     {
         $this->action->addAction(
             new WebDriverButtonReleaseAction($this->mouse, $element)
@@ -222,11 +200,10 @@ class WebDriverActions
      * If $element is provided, focus on that element first.
      *
      * @see WebDriverKeys for special keys like CONTROL, ALT, etc.
-     * @param WebDriverElement $element
      * @param string $key
      * @return WebDriverActions
      */
-    public function keyDown(WebDriverElement $element = null, $key = null)
+    public function keyDown(?WebDriverElement $element = null, $key = null)
     {
         $this->action->addAction(
             new WebDriverKeyDownAction($this->keyboard, $this->mouse, $element, $key)
@@ -240,11 +217,10 @@ class WebDriverActions
      * If $element is provided, focus on that element first.
      *
      * @see WebDriverKeys for special keys like CONTROL, ALT, etc.
-     * @param WebDriverElement $element
      * @param string $key
      * @return WebDriverActions
      */
-    public function keyUp(WebDriverElement $element = null, $key = null)
+    public function keyUp(?WebDriverElement $element = null, $key = null)
     {
         $this->action->addAction(
             new WebDriverKeyUpAction($this->keyboard, $this->mouse, $element, $key)
@@ -255,14 +231,13 @@ class WebDriverActions
 
     /**
      * Send keys by keyboard.
-     * If $element is provided, focus on that element first.
+     * If $element is provided, focus on that element first (using single mouse click).
      *
      * @see WebDriverKeys for special keys like CONTROL, ALT, etc.
-     * @param WebDriverElement $element
      * @param string $keys
      * @return WebDriverActions
      */
-    public function sendKeys(WebDriverElement $element = null, $keys = null)
+    public function sendKeys(?WebDriverElement $element = null, $keys = null)
     {
         $this->action->addAction(
             new WebDriverSendKeysAction(

@@ -1,28 +1,16 @@
 <?php
-// Copyright 2004-present Facebook. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 namespace Facebook\WebDriver\Remote\Service;
 
+use Facebook\WebDriver\Exception\Internal\DriverServerDiedException;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Remote\DriverCommand;
 use Facebook\WebDriver\Remote\HttpCommandExecutor;
 use Facebook\WebDriver\Remote\WebDriverCommand;
+use Facebook\WebDriver\Remote\WebDriverResponse;
 
 /**
- * A HttpCommandExecutor that talks to a local driver service instead of
- * a remote server.
+ * A HttpCommandExecutor that talks to a local driver service instead of a remote server.
  */
 class DriverCommandExecutor extends HttpCommandExecutor
 {
@@ -38,11 +26,9 @@ class DriverCommandExecutor extends HttpCommandExecutor
     }
 
     /**
-     * @param WebDriverCommand $command
-     *
-     * @throws WebDriverException
      * @throws \Exception
-     * @return mixed
+     * @throws WebDriverException
+     * @return WebDriverResponse
      */
     public function execute(WebDriverCommand $command)
     {
@@ -59,7 +45,7 @@ class DriverCommandExecutor extends HttpCommandExecutor
             return $value;
         } catch (\Exception $e) {
             if (!$this->service->isRunning()) {
-                throw new WebDriverException('The driver server has died.');
+                throw new DriverServerDiedException($e);
             }
             throw $e;
         }
