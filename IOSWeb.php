@@ -1,47 +1,68 @@
 <?php
-    require 'vendor/autoload.php';
-    use Facebook\WebDriver\Remote\DesiredCapabilities;
-    use Facebook\WebDriver\Remote\RemoteWebDriver;
-    use Facebook\WebDriver\WebDriverBy;
-    use Facebook\WebDriver\Remote;
-    use Facebook\WebDriver\WebDriverExpectedCondition;
 
-    $caps = array(
-        "deviceName" => "iPhone .*",
-        "platformName" => "ios",
-        "platformVersion" => "14",
-        "isRealMobile" => TRUE,
-        "visual" => TRUE,
-        "video" => TRUE,
-        "name" => "Php - IOS test",
-        "build" => "Php Vanilla - IOS"
-    );
+require_once __DIR__ . '/vendor/autoload.php';
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverWait;
 
-   @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
+// LambdaTest credentials
+$username  = getenv("LT_USERNAME") ?: "USERNAME";
+$accesskey = getenv("LT_ACCESS_KEY") ?: "ACCESS_KEY";
 
- try{
+$hub = "https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub";
+
+// iOS Web (Safari) – Appium 2 compliant
+$caps = [
+    'platformName' => 'iOS',
+    'browserName'  => 'Safari',
+
+    // Appium specific
+    'appium:deviceName' => 'iPhone 16 Pro Max',
+    'appium:platformVersion' => '18',
+    'appium:automationName' => 'XCUITest',
+    'appium:safariAllowPopups' => true,
+    'appium:autoAcceptAlerts' => true,
+
+    'LT:Options' => [
+        'isRealMobile' => true,
+        'build' => 'PHP 8.5 iOS Web',
+        'name'  => 'PHP iOS Web Test',
+        'video' => true,
+        'visual'=> true,
+        'appiumVersion' => '2.0',
+        'newCommandTimeout' => 300,
+        'wdaStartupTimeout' => 120000
+    ]
+];
+
+// ⏳ Increase session creation timeout for iOS
+$driver = RemoteWebDriver::create(
+    $hub,
+    $caps,
+    90000,   // connection timeout
+    90000    // request timeout
+);
+
+try {
+    $wait = new WebDriverWait($driver, 60, 500);
+
     $driver->get("https://mfml.in/api/getInfo");
-    sleep(10);
-    $color_element = $driver->findElement(WebDriverBy::id('resolution'));
-    $color_element->click();
 
-    $text_element = $driver->findElement(WebDriverBy::id('location'));
-    $text_element->click();
+    // iOS Safari is slow — always wait
+    $wait->until(function () use ($driver) {
+        return count($driver->findElements(WebDriverBy::id('resolution'))) > 0;
+    });
 
-    $toast_element = $driver->findElement(WebDriverBy::id('details'));
-    $toast_element->click();
+    $driver->findElement(WebDriverBy::id('resolution'))->click();
+    $driver->findElement(WebDriverBy::id('location'))->click();
+    $driver->findElement(WebDriverBy::id('details'))->click();
+    $driver->findElement(WebDriverBy::id('timezone'))->click();
 
-    $notification_element = $driver->findElement(WebDriverBy::id('timezone'));
-    $notification_element->click();
-    
     sleep(5);
 
-    $driver->quit();
- } finally {
-    $driver->quit();
- }
-
-?>
+} finally {
+    if ($driver) {
+        $driver->quit();
+    }
+}

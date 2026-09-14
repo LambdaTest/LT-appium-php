@@ -1,48 +1,61 @@
 <?php
-    require 'vendor/autoload.php';
-    use Facebook\WebDriver\Remote\DesiredCapabilities;
-    use Facebook\WebDriver\Remote\RemoteWebDriver;
-    use Facebook\WebDriver\WebDriverBy;
-    use Facebook\WebDriver\Remote;
-    use Facebook\WebDriver\WebDriverExpectedCondition;
 
-    $caps = array(
-        "app"=> "lt://proverbial-android", //Enter app_url here
-        "deviceName" => "Galaxy S20",
-        "platformName" => "Android",
-        "platformVersion" => "10",
-        "isRealMobile" => TRUE,
-        "visual" => TRUE,
-        "video" => TRUE,
-        "name" => "Php - Android test",
-        "build" => "Php Vanilla - Android"
-    );
+require_once __DIR__ . '/vendor/autoload.php';
 
-    $username = getenv("LT_USERNAME") ? getenv("LT_USERNAME") : "USERNAME"; //Enter username here
-    $accesskey = getenv("LT_ACCESS_KEY") ? getenv("LT_ACCESS_KEY") : "ACCESS_KEY"; //Enter accesskey here
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverWait;
 
-   @$driver = RemoteWebDriver::create("https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub",$caps);
+// LambdaTest credentials
+$username  = getenv("LT_USERNAME") ?: "USERNAME";
+$accesskey = getenv("LT_ACCESS_KEY") ?: "ACCESS_KEY";
 
- try{
-    $color_element = $driver->findElement(WebDriverBy::id('color'));
-    $color_element->click();
+$hub = "https://$username:$accesskey@mobile-hub.lambdatest.com/wd/hub";
 
-    $text_element = $driver->findElement(WebDriverBy::id('Text'));
-    $text_element->click();
+// W3C-compliant capabilities (Appium 2)
+$caps = [
+    'platformName' => 'Android',
+    'appium:deviceName' => 'Galaxy S25',
+    'appium:platformVersion' => '15',
+    'appium:app' => 'lt://proverbial-android',
 
-    $toast_element = $driver->findElement(WebDriverBy::id('toast'));
-    $toast_element->click();
+    'LT:Options' => [
+        'isRealMobile' => true,
+        'build' => 'PHP 8.5 Android Appium',
+        'name'  => 'PHP Android Test',
+        'video' => true,
+        'visual'=> true,
+        'appiumVersion' => '2.0',
+      //   'autoAcceptAlerts'=>true,
+        'autoDismissAlerts'=>true,
+        'newCommandTimeout' => 300
+    ]
+];
 
-    $notification_element = $driver->findElement(WebDriverBy::id('notification'));
-    $notification_element->click();
+// Create driver
+$driver = RemoteWebDriver::create(
+    $hub,
+    $caps,
+    30000,
+    30000
+);
 
-    $geoLocation_element = $driver->findElement(WebDriverBy::id('geoLocation'));
-    $geoLocation_element->click();
+try {
+    $wait = new WebDriverWait($driver, 30, 500);
+
+    // Wait for app to load
+    $wait->until(function () use ($driver) {
+        return count($driver->findElements(WebDriverBy::id('color'))) > 0;
+    });
+
+    $driver->findElement(WebDriverBy::id('color'))->click();
+    $driver->findElement(WebDriverBy::id('Text'))->click();
+    $driver->findElement(WebDriverBy::id('toast'))->click();
+    $driver->findElement(WebDriverBy::id('geoLocation'))->click();
     sleep(5);
 
-    $driver->quit();
- } finally {
-    $driver->quit();
- }
-
-?>
+} finally {
+    if ($driver) {
+        $driver->quit();
+    }
+}
